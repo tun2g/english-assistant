@@ -1,0 +1,270 @@
+/Users/macbook/Documents/kitemetric/igot/certify/.cursor/rules/use-cases/form-handling.mdc---
+description: 
+globs: src/**/*.ts,src/**/*.tsx
+alwaysApply: true
+---
+
+# Rules for Codebase
+
+## 1. Core Requirements
+
+- **ALWAYS** use `pnpm` as package manager, read the package.json before running any related script
+- **ALWAYS** use TypeScript - never plain JavaScript
+- **ALWAYS** use named exports (avoid default exports except for Next.js pages)
+- **ALWAYS** use `function` syntax for main component/hook exports
+- **NEVER** modify files in `src/components/ui/` (shadcn ui components) without approval
+- **NEVER** expose service role keys and other private/sensitive keys to client-side code
+- **RULE**: **NEVER set system environment variables** for values managed in `.env` files
+- **RULE**: IMPORTANT **MUST** Using [dayjs-lib.ts](mdc:src/lib/dayjs-lib.ts) (already customized) for datetime handling (not use primitive `dayjs` or any library or default Date() function)
+- **RULE**: Prefer server side first when working with Next.js
+- **RULE**: Don't need to rerun the application for each change, we already have hot reload
+
+## 2. File Rules
+
+### File Naming & Structure
+- **RULE**: Use kebab-case for ALL filenames and directories
+  - ✅ `user-profile.tsx`, `api-client.ts`
+  - ❌ `UserProfile.tsx`, `userProfile.tsx`, `user_profile.tsx`
+
+### File Naming by Type
+- **RULE**: **Non-component files** in specialized directories use parent folder suffix:
+  - Pattern: `{name}-{parent-folder}.ts`
+  - ✅ `constants/app-config-constants.ts`, `types/user-profile-types.ts`, `lib/dayjs-lib.ts``
+  - ❌ `app-config.ts`, `user-profile.ts`, `dayjs-utils.ts`
+- **RULE**: **Component files** rely on folder context for clarity:
+  - Pattern: `{descriptive-name}.tsx` (folder provides context)
+  - ✅ `certifications-table.tsx`, `login-form.tsx`
+  - ❌ No suffix needed - folder structure provides context
+- **RULE**: **NOT** prefer using index file e.g. `index.ts`, `index.tsx`
+
+### Directory Placement
+- **RULE**: Only place Next.js specific files in `src/app/` folder
+- **RULE**: Component placement:
+  - **Shared components**: Place in `src/components/`
+  - **Split/child components**: Place in parent folder under `components/`
+  - **Presentation UI**: Place in `containers/` folder
+- **RULE**: **Type Definition Placement** (STRICT - LOCAL SCOPE PREFERRED):
+  - **Prefer LOCAL scope over GLOBAL scope** - only use global if truly shared across multiple features
+  - **Feature-specific interfaces/types**: Place in `{feature}/interfaces/` or `{feature}/constants/` 
+  - **Component-specific interfaces**: Define directly in component files
+  - **Global/app-wide types**: `src/lib/types/` ONLY for truly shared across whole application
+  - **Shared/reusable interfaces**: `src/lib/interfaces/` ONLY for cross-feature shared interfaces
+  - **ASK YOURSELF**: "Is this interface/type used in multiple features?" If NO → use local scope
+
+## 3. TypeScript Rules
+
+### Type vs Interface
+- **RULE**: **ALWAYS prefer `interface`** over `type` for object shapes
+- **RULE**: Use `type` ONLY for: unions, primitives, Zod inference, database inference, complex mapped types
+
+### Type Definitions
+```typescript
+// ✅ Use interface for objects and props
+interface UserProfileProps {
+  user: User;
+  onUpdate: (data: Partial<User>) => void;
+}
+
+// ✅ Use type for specific cases
+type Status = 'loading' | 'success' | 'error';
+type ApiResponse<T> = { status: 'success'; data: T } | { status: 'error'; message: string };
+type CreateUserRequest = z.infer<typeof createUserSchema>;
+type UserProfile = Tables<'user_profiles'>;
+```
+
+### Constants & Enums
+- **RULE**: **NEVER use `enum`** - use `as const` instead
+```typescript
+// ✅ Use as const
+const USER_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+  SYSTEM_ADMIN: 'system_admin'  // snake_case value
+} as const;
+type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+```
+
+### Naming Conventions
+- **RULE**: Props interfaces: `{ComponentName}Props`
+- **RULE**: PascalCase for interfaces and types
+- **RULE**: SCREAMING_SNAKE_CASE for ALL constants
+- **RULE**: camelCase for variables and functions
+- **RULE**: Event handlers start with `handle`, callback props start with `on`
+
+### Code Style
+- **RULE**: **ALWAYS use curly braces `{` `}` for every block statements** (if, else, while, for, etc.) even if single line
+- **RULE**: Arrow functions can skip braces for simple expressions
+```typescript
+// ✅ Conditional statements - always use braces
+if (condition) { doSomething(); }
+for (let i = 0; i < arr.length; i++) { process(arr[i]); }
+while (isRunning) { update(); }
+
+// ✅ Arrow functions - can skip braces for simple expressions
+const fn = () => value;
+array.map(item => item.name);
+array.filter(item => item.active);
+
+// ✅ Arrow functions - still okay with braces
+const fn = () => { return complexLogic(); };
+```
+
+### Imports
+- **RULE**: Use `type` keyword for type-only imports
+```typescript
+import type { User } from './types';
+import { someFunction, type SomeType } from './module';
+```
+
+## 4. React & Next.js Rules
+
+### React Patterns
+- **RULE**: Use direct imports for React hooks
+```typescript
+// ✅ Direct imports
+import { useState, useEffect } from 'react';
+
+// ❌ Avoid namespace imports
+import * as React from 'react';
+```
+
+- **RULE**: Custom hooks must start with `use` and return objects (not arrays)
+- **RULE**: Extract complex event handlers to separate functions with `handle` prefix
+- **RULE**: Use `function` for main exports, reused functions, complex handlers
+- **RULE**: Use arrow functions for inline handlers, array methods, callbacks, small utility functions within components, internal helper functions in utility files
+
+### Server vs Client Components
+- **RULE**: **Default to Server Components** - only use `'use client';` when needed:
+  - Event handlers, state, lifecycle effects
+  - Browser-only APIs, interactive functionality
+- **RULE**: Be granular - extract only interactive parts to Client Components
+
+### Images
+- **RULE**: **ALWAYS use `next/image`** - never `<img>` tag
+- **RULE**: Required props: `src`, `alt`, and either (`width` + `height`) OR `fill`
+- **RULE**: When using `fill`, parent element **MUST** have `position: relative`
+- **RULE**: Use `priority={true}` for above-the-fold images
+- **RULE**: Configure `remotePatterns` in `next.config.mjs` for external images
+
+### Link
+- **RULE**: **ALWAYS** use `next/link` for link component - never `<a>` tag
+
+### API Routes
+- **RULE**: Use API routes for webhooks, external endpoints, or internal data operations
+- **RULE**: Follow Next.js App Router conventions for API routes in `app/api/` directory
+
+## 5. TanStack Query Rules
+
+- **RULE**: **For server + client interactivity**: Use React Query with proper hydration
+```typescript
+// ✅ When client interactivity is needed (forms, real-time updates, etc.)
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { getQueryClient } from '@/lib/query-client';
+
+export default async function InteractivePage() {
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ['jobs', { page: 1 }],
+    queryFn: () => fetchJobs({ page: 1 }),
+  });
+  
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <JobTable /> {/* Client component with mutations, filters, etc. */}
+    </HydrationBoundary>
+  );
+}
+```
+
+### Client Component Data Fetching
+- **RULE**: **ALWAYS use** query keys from `@/lib/constants/query-key-constants.ts`
+- **RULE**: Follow consistent query key patterns: `QUERY_KEY.{DOMAIN}.{ACTION}`
+- **RULE**: Use `placeholderData: keepPreviousData` for paginated/filtered data
+- **RULE**: Set `enabled: !!dependency` for conditional queries
+```typescript
+// ✅ CORRECT - Using query key constants
+import { QUERY_KEY } from '@/lib/constants/query-key-constants';
+const { data } = useQuery({
+  queryKey: [QUERY_KEY.AUTH.LOGOUT],
+  queryFn: logoutUser,
+});
+
+// ❌ WRONG - Hardcoded query keys
+const { data } = useQuery({
+  queryKey: ['auth', 'logout'],
+  queryFn: logoutUser,
+});
+```
+
+### Client Component Mutations  
+- **RULE**: **ALWAYS use** `useMutation()` with proper configuration
+- **RULE**: **ALWAYS invalidate related queries** in `onSuccess` using `queryClient.invalidateQueries()`
+- **RULE**: Use query keys from constants for specific invalidation
+```typescript
+// ✅ CORRECT - Using query key constants for invalidation
+const mutation = useMutation({
+  mutationFn: updateUser,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEY.USER.PROFILE] });
+  },
+});
+```
+
+### Error Handling
+- **RULE**: **ALWAYS handle loading and error states** in Client Components
+- **RULE**: **NEVER toast detailed error messages** to client - use generic messages for security
+```typescript
+// ✅ Generic error messages
+onError: () => toast.error('Failed to create job posting. Please try again.')
+
+// ❌ Never expose details
+onError: (error) => toast.error(error.message) // Could leak sensitive info
+```
+- **RULE**: Log detailed errors server-side for debugging, show generic messages client-side
+- **RULE**: Handle errors appropriately in API calls and mutations
+
+### Type Safety & Type Exports
+- **RULE**: **ALWAYS ensure type safety** in API calls and data fetching
+- **RULE**: **Define clear interfaces** for API responses and requests
+- **RULE**: **Type Exports**: Use TypeScript inference where possible
+```typescript
+// ✅ CORRECT - Clear type definitions
+export interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+// ✅ CORRECT - Inference from functions
+export type JobSubmissionResult = Awaited<ReturnType<typeof submitJob>>;
+```
+
+## 6. UI Rules
+
+### Component Patterns & Consistency
+- **RULE**: **Reference existing components first** - check if similar patterns exist before creating new ones
+- **RULE**: **Prefer using components/data-table pattern** rather than components/ui/table
+
+### Tailwind CSS v4 (Required)
+- **RULE**: **ALWAYS use Tailwind CSS for styling** - no custom CSS unless absolutely necessary
+- **RULE**: Configure using CSS-first approach (no `tailwind.config.js`)
+```css
+/* src/styles/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: oklch(0.6 0.2 250);
+  --font-display: "Inter", sans-serif;
+}
+```
+
+### shadcn/ui Components
+- **RULE**: **NEVER modify files in `src/components/ui/` without approval**
+- **RULE**: Create custom components by composing shadcn/ui components
+
+### Best Practices
+- **RULE**: Use Tailwind utility classes instead of custom CSS
+- **RULE**: Use responsive design with breakpoint prefixes (`md:`, `lg:`, etc.)
+- **RULE**: MUST use `cn` function in [tailwind-utils.ts](mdc:src/lib/utils/tailwind-utils.ts) for class concatenation
+  - ✅ <div className={`base-class ${isActive ? 'active-class' : ''}`}/>
+  - ❌ <div className={cn('base-class', isActive && 'active-class')}/>
+- **RULE**: MUST use flat and clean UI style, don't prefer using Card layout

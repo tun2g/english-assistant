@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+    container_name: app-backend
+    restart: unless-stopped
+    expose:
+      - "8080"  # Only expose to Docker network, nginx will proxy
+    environment:
+      # App configuration
+      APP_APP_ENVIRONMENT: production
+      APP_APP_PORT: "8080"
+      APP_APP_LOG_LEVEL: info
+      
+      # Database configuration
+      APP_DATABASE_HOST: postgres
+      APP_DATABASE_PORT: "5432"
+      APP_DATABASE_USER: ${DB_USER:-postgres}
+      APP_DATABASE_PASSWORD: ${DB_PASSWORD:-postgres}
+      APP_DATABASE_NAME: ${DB_NAME:-app_backend}
+      APP_DATABASE_SSL_MODE: require
+      
+      # JWT configuration
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_ACCESS_TTL_MINUTES: "15"
+      APP_JWT_REFRESH_TTL_HOURS: "168"
+      
+      # Security configuration
+      APP_SECURITY_BCRYPT_COST: "14"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: app-backend-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-app_backend}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    expose:
+      - "5432"  # Only expose to Docker network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../apps/backend/scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: app-backend-redis
+    restart: unless-stopped
+    expose:
+      - "6379"  # Only expose to Docker network
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+  nginx:
+    image: nginx:alpine
+    container_name: app-backend-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

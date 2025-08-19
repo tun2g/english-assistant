@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Development files
+.env
+.env.local
+.env.*.local
+.air.toml
+Makefile
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+bin/
+tmp/
+*.log
+
+# Test files
+*_test.go
+testdata/
+coverage.out
+coverage.html
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore

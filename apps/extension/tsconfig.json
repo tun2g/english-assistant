@@ -1,0 +1,38 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@english/shared": ["../../packages/shared/src"],
+      "@english/shared/*": ["../../packages/shared/src/*"],
+      "@english/ui": ["../../packages/ui/src"],
+      "@english/ui/*": ["../../packages/ui/src/*"]
+    },
+    "types": ["chrome", "vite/client", "node"]
+  },
+  "include": [
+    "src/**/*",
+    "../../packages/shared/src",
+    "../../packages/ui/src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

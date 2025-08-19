@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-backend-config
+  namespace: app-backend
+data:
+  APP_APP_ENVIRONMENT: "production"
+  APP_APP_PORT: "8080"
+  APP_APP_LOG_LEVEL: "info"
+  APP_DATABASE_HOST: "postgres-service"
+  APP_DATABASE_PORT: "5432"
+  APP_DATABASE_SSL_MODE: "require"
+  APP_JWT_ACCESS_TTL_MINUTES: "15"
+  APP_JWT_REFRESH_TTL_HOURS: "168"
+  APP_SECURITY_BCRYPT_COST: "14"

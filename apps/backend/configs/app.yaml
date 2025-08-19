@@ -1,0 +1,85 @@
+# Application configuration
+app:
+  name: "app-backend"
+  version: "1.0.0"
+  environment: "development"
+  port: "8000"
+  log_level: "debug"
+
+# Database configuration
+database:
+  host: "localhost"
+  port: "5434"
+  user: "postgres"
+  password: "postgres"
+  name: "app_backend_dev"
+  ssl_mode: "disable"
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: "1h"
+
+# JWT configuration
+jwt:
+  secret: "your-super-secret-jwt-key-change-in-production"
+  access_ttl_minutes: 15
+  refresh_ttl_hours: 168  # 7 days
+
+# CORS configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:3001"
+    - "http://localhost:8000"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+    - "X-Requested-With"
+  expose_headers:
+    - "Content-Length"
+    - "Content-Type"
+  max_age: 300
+
+# Security configuration
+security:
+  bcrypt_cost: 12
+  rate_limit:
+    requests_per_minute: 60
+    burst: 10
+
+# External API configuration
+# API keys can be overridden by environment variables via Viper's automatic binding:
+# - external_apis.youtube.api_key can be overridden by APP_EXTERNAL_APIS_YOUTUBE_API_KEY
+# - external_apis.gemini.api_key can be overridden by APP_EXTERNAL_APIS_GEMINI_API_KEY
+external_apis:
+  youtube:
+    api_key: "AIzaSyDb-184rt6uUvspkeTGHETjeT3DdNxht4s"
+    api_url: "https://www.googleapis.com/youtube/v3"
+    rate_limit: 100  # requests per minute
+    oauth:
+      client_id: "867247117573-fn9o50pdnvntre2uhrorj4lvv409tuqm.apps.googleusercontent.com"
+      client_secret: "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"
+      redirect_url: "http://localhost:8000/api/v1/oauth/youtube/callback"
+      token_storage: "./storage/oauth/youtube_token.json"
+  
+  gemini:
+    api_key: "AIzaSyAvJrEFjvHeA35sjjsAMvSHbi8I1eqMM-w"
+    api_url: "https://generativelanguage.googleapis.com"
+    rate_limit: 60   # requests per minute
+
+# Cache configuration
+cache:
+  redis_url: "redis://localhost:6379"
+  ttl: "24h"
+
+# Encryption configuration (for API key storage)
+encryption:
+  key: "${ENCRYPTION_KEY:-default-dev-key-change-in-production}"

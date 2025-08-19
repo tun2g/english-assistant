@@ -1,0 +1,39 @@
+{
+  "name": "english-monorepo",
+  "version": "1.0.0",
+  "description": "A comprehensive monorepo with backend, frontend, extension, admin, and shared packages",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,go}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,go}\"",
+    "test": "turbo test",
+    "clean": "turbo clean",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@english/eslint-config": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.55.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@8.14.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

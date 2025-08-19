@@ -1,0 +1,56 @@
+# Production configuration
+app:
+  name: "app-backend"
+  version: "1.0.0"
+  environment: "production"
+  port: "8000"
+  log_level: "info"
+
+# Database configuration (use environment variables in production)
+database:
+  host: "${DB_HOST}"
+  port: "${DB_PORT}"
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"
+  name: "${DB_NAME}"
+  ssl_mode: "require"
+  max_open_conns: 50
+  max_idle_conns: 10
+  conn_max_lifetime: "1h"
+
+# JWT configuration (use environment variables in production)
+jwt:
+  secret: "${JWT_SECRET}"
+  access_ttl_minutes: 15
+  refresh_ttl_hours: 168  # 7 days
+
+# CORS configuration
+cors:
+  allowed_origins:
+    - "https://yourdomain.com"
+    - "https://www.yourdomain.com"
+    - "https://admin.yourdomain.com"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "PATCH"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+    - "X-Requested-With"
+  expose_headers:
+    - "Content-Length"
+    - "Content-Type"
+  max_age: 300
+
+# Security configuration
+security:
+  bcrypt_cost: 14
+  rate_limit:
+    requests_per_minute: 100
+    burst: 20

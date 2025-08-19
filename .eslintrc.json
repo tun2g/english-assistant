@@ -1,0 +1,9 @@
+{
+  "extends": ["@english/eslint-config/base"],
+  "ignorePatterns": [
+    "apps/*/dist/**",
+    "packages/*/dist/**",
+    "node_modules/**",
+    "**/*.min.js"
+  ]
+}

@@ -1,0 +1,87 @@
+---
+description: USE WHEN handle form components in React
+globs: 
+alwaysApply: false
+---
+# Form Handling Rules - Strict Usage of [form.tsx](mdc:src/components/ui/form.tsx)
+
+Generate forms by correctly using the components from [form.tsx](mdc:src/components/ui/form.tsx) alongside React Hook Form (RHF) and Zod. Strict adherence to this guide is mandatory for functionality.
+
+## Mandatory Form Structure
+
+```tsx
+"use client"; // Add in Next.js App Router client component
+
+// Essential imports:
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input"; // Or other UI input components
+import { Button } from "@/components/ui/button";
+
+// 1. Zod Schema (Example)
+const myFormSchema = z.object({
+  fieldName: z.string().min(1, "This field is required."),
+});
+type MyFormValues = z.infer<typeof myFormSchema>;
+
+// 2. Component Logic
+function MyFormComponent() {
+  const form = useForm<MyFormValues>({
+    resolver: zodResolver(myFormSchema),
+    defaultValues: { fieldName: "" }, // Initialize ALL fields
+  });
+
+  function onSubmit(values: MyFormValues) {
+    console.log(values); // Implement submission logic
+  }
+
+  // 3. JSX Structure
+  return (
+    <Form {...form}> {/* Root from @/components/ui/form.tsx */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control} // From RHF
+          name="fieldName"      // MUST match Zod schema & defaultValues
+          render={({ field }) => ( // RHF field object
+            <FormItem> {/* Wrapper from @/components/ui/form.tsx */}
+              <FormLabel>Field Label</FormLabel>
+              <FormControl> {/* From @/components/ui/form.tsx */}
+                {/* Actual input, spread {...field} if Input component properties match `field` properties */}
+                <Input placeholder="Enter value" {...field} />
+              </FormControl>
+              <FormDescription>Optional helper text.</FormDescription>
+              <FormMessage /> {/* Displays errors from @/components/ui/form.tsx */}
+            </FormItem>
+          )}
+        />
+        {/* Add more <FormField> blocks for other fields */}
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+## Checklist
+
+**MANDATORY Actions:**
+
+1.  **Schema First**: Define or request a Zod schema. Infer types (`z.infer`).
+2.  **`useForm` Correctly**: Initialize with `zodResolver` and `defaultValues` for ALL fields.
+3.  **`"use client";`**: Add for Next.js App Router client components if form is interactive.
+4.  **Strict JSX Hierarchy**: Follow the `Form` -> `form` -> `FormField` -> `FormItem` -> `FormLabel`/`FormControl`/`FormDescription`/`FormMessage` structure from `@/components/ui/form.tsx` for every field.
+5.  **`<FormField>` Props**: Correctly pass `control={form.control}` and `name="yourFieldName"` (string literal matching schema).
+6.  **`<FormField>` Render Prop**: Use `render={({ field }) => ...}`.
+7.  **`<FormControl>` Direct Child**: The actual UI input component (e.g., `<Input>`, `<Textarea>`) MUST be the direct child of `<FormControl>`.
+8.  **Spread `{...field}` if possible** : Prefer spread the `field` object from the render prop onto the UI input component: `<Input {...field} />`. If the input component fields not match default field, we MUST NOT spread and MUST give explicitly mapping such as `<CustomSelect onSelectChange={field.onChange} customValue={field.value} />.
+9.  **Use `<FormMessage />`**: This component from `@/components/ui/form.tsx` automatically displays validation errors. Do not implement custom error display for fields.
+10. **Imports**: Ensure all components are imported from `@/components/ui/form`, RHF, Zod, and your UI library (e.g., `@/components/ui/input`).
+
+**DO NOT:**
+
+*   Manually manage `id`, `htmlFor`, or ARIA attributes for form elements.
+*   Pass error messages manually to form components. `<FormMessage />` handles this.
+*   Deviate from the specified component nesting. The context-based wiring in `src/components/ui/form.tsx` depends on it.
+
