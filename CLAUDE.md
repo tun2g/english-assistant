@@ -1,14 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this
+repository.
 
 ## Project Overview
 
 English Learning Assistant is a comprehensive monorepo containing:
 
-- **Backend**: Go REST API with Gin framework, PostgreSQL, JWT auth, and external integrations (YouTube API, Google Gemini)
-- **Web App**: React/TypeScript SPA with Vite, TanStack Query, React Router, and Tailwind CSS  
-- **Chrome Extension**: Manifest V3 extension with TypeScript, Framework7, and shared utilities
+- **Backend**: Go REST API with Gin framework, PostgreSQL, JWT auth, and external integrations
+  (YouTube API, Google Gemini)
+- **Web App**: React 18 SPA with Vite, TanStack Query, React Router, React Hook Form, and Tailwind
+  CSS
+- **Chrome Extension**: Manifest V3 extension with React 18, Framework7 React, and shared utilities
 - **Admin App**: Administrative interface (template structure)
 - **Shared Packages**: Common utilities, types, API clients, and UI components
 
@@ -41,6 +44,30 @@ pnpm format
 # Clean build artifacts
 pnpm clean
 ```
+
+### Git Hooks and Code Quality
+
+The repository uses Husky for git hooks with automated code quality checks:
+
+```bash
+# Pre-commit hooks automatically run:
+# - ESLint with --fix for JS/TS files
+# - Prettier formatting for all supported files
+# - Go formatting and linting for backend files
+
+# Commit message validation:
+# - Uses conventional commits format
+# - Must follow: type(scope): description
+# - Examples: feat: add user authentication, fix: resolve login bug
+```
+
+**Supported commit types**: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+
+**Lint-staged Configuration:**
+
+- JavaScript/TypeScript files: ESLint with --fix + Prettier formatting
+- JSON/Markdown/YAML files: Prettier formatting only
+- Go files: Format and lint using backend Makefile commands
 
 ### Backend (Go/Gin API)
 
@@ -78,12 +105,12 @@ make install-tools
 make setup
 ```
 
-### Web App (React/Vite)
+### Web App (React + Vite)
 
 Navigate to `apps/web/` first:
 
 ```bash
-# Development server
+# Development server with hot reload
 pnpm dev
 
 # Build for production
@@ -92,23 +119,32 @@ pnpm build
 # Type checking
 pnpm type-check
 
-# Linting
+# Linting with auto-fix
 pnpm lint
+
+# Preview production build
+pnpm preview
 ```
 
-### Chrome Extension
+### Chrome Extension (React + Framework7)
 
 Navigate to `apps/extension/` first:
 
 ```bash
-# Development build with watch
+# Development build with watch mode
 pnpm dev
 
 # Production build
 pnpm build
 
+# Development build only
+pnpm build:dev
+
 # Type checking
 pnpm type-check
+
+# Clean build artifacts
+pnpm clean
 ```
 
 ## Backend Architecture Patterns
@@ -117,10 +153,10 @@ pnpm type-check
 
 The backend follows clean architecture with clear separation of concerns:
 
-```
+```text
 handlers/     # HTTP handlers (Gin controllers)
   ├── auth/   # Authentication endpoints
-  ├── user/   # User management endpoints  
+  ├── user/   # User management endpoints
   └── video/  # Video processing endpoints
 
 services/     # Business logic layer
@@ -206,15 +242,15 @@ type Container struct {
     Config     *config.Config
     DB         *gorm.DB
     Logger     *logger.Logger
-    
+
     // Repositories
     UserRepository    repositories.UserRepositoryInterface
     SessionRepository repositories.SessionRepositoryInterface
-    
-    // Services  
+
+    // Services
     JWTService   jwtService.ServiceInterface
     AuthService  authService.ServiceInterface
-    
+
     // Handlers
     AuthHandler  auth.HandlerInterface
     UserHandler  user.HandlerInterface
@@ -227,7 +263,7 @@ type Container struct {
 
 **ALWAYS use kebab-case for ALL filenames and directories:**
 
-```
+```text
 ✅ user-profile.tsx, api-client.ts, auth-types.ts
 ❌ UserProfile.tsx, userProfile.tsx, user_profile.tsx
 ```
@@ -265,9 +301,9 @@ type ApiResponse<T> = { status: 'success'; data: T } | { status: 'error'; messag
 const USER_ROLES = {
   ADMIN: 'admin',
   USER: 'user',
-  SYSTEM_ADMIN: 'system_admin'
+  SYSTEM_ADMIN: 'system_admin',
 } as const;
-type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 ```
 
 ### React Patterns
@@ -289,10 +325,11 @@ import type { User } from './types';
 import { someFunction, type SomeType } from './module';
 ```
 
-**Server vs Client Components:**
+**Component Export Patterns:**
 
-- **Default to Server Components** - only use `'use client';` when needed
-- Use client components for: event handlers, state, lifecycle effects, browser APIs
+- **ALWAYS use named exports** (avoid default exports)
+- Use `function` syntax for main component exports
+- Use arrow functions for inline handlers and small utilities
 
 ### Styling Guidelines
 
@@ -300,11 +337,11 @@ import { someFunction, type SomeType } from './module';
 
 ```css
 /* src/styles/globals.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-brand-primary: oklch(0.6 0.2 250);
-  --font-display: "Inter", sans-serif;
+  --font-display: 'Inter', sans-serif;
 }
 ```
 
@@ -348,10 +385,10 @@ const mutation = useMutation({
 
 ```typescript
 // ✅ Generic error messages
-onError: () => toast.error('Failed to create job posting. Please try again.')
+onError: () => toast.error('Failed to create job posting. Please try again.');
 
 // ❌ Never expose server error details
-onError: (error) => toast.error(error.message)
+onError: error => toast.error(error.message);
 ```
 
 ### Type Safety Between Backend and Frontend
@@ -393,11 +430,20 @@ interface AuthResponse {
 
 ### Frontend Architecture
 
+**Web App (React + Vite):**
+
 - **Component Architecture**: Pages → Containers → Components pattern
 - **State Management**: TanStack Query for server state, React Hook Form for forms
 - **Routing**: React Router with protected routes
 - **Styling**: Tailwind CSS with shared UI components
 - **API Layer**: Axios client in shared package with type-safe endpoints
+
+**Chrome Extension (React + Framework7):**
+
+- **Architecture**: Background scripts, content scripts, popup/options React apps
+- **UI Framework**: Framework7 React for mobile-like UI components
+- **Structure**: Services, features, UI components with shared utilities
+- **Integration**: YouTube integration, OAuth management, notification system
 
 ### Shared Package Structure
 
