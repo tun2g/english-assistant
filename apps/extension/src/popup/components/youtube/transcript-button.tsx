@@ -1,35 +1,38 @@
 import React from 'react';
-import { Button, ListItem } from 'framework7-react';
+import { Button, Spinner } from '@english/ui';
+import { useOAuthQuery } from '../../../hooks';
 
 interface TranscriptButtonProps {
-  isAuthenticated: boolean;
-  isLoading: boolean;
   videoId: string | null;
-  onGetTranscript: () => Promise<void>;
 }
 
-export function TranscriptButton({ 
-  isAuthenticated, 
-  isLoading, 
-  videoId, 
-  onGetTranscript 
-}: TranscriptButtonProps) {
+export function TranscriptButton({ videoId }: TranscriptButtonProps) {
+  const { isAuthenticated, isLoading } = useOAuthQuery();
+
+  const handleGetTranscript = async () => {
+    if (!videoId) return;
+
+    // Send message to content script to trigger transcript request
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (tab.id) {
+      await chrome.tabs.sendMessage(tab.id, {
+        action: 'GET_TRANSCRIPT_WITH_AUTH',
+      });
+    }
+  };
+
   if (!videoId) return null;
 
   return (
-    <ListItem>
-      <Button 
-        fill
-        color="green"
-        onClick={onGetTranscript}
-        disabled={isLoading}
-        style={{ width: '100%' }}
-      >
-        {isAuthenticated 
-          ? '📝 Get Real Transcript' 
-          : '🔒 Get Transcript (Auth Required)'
-        }
+    <div className="p-4">
+      <Button variant="default" onClick={handleGetTranscript} disabled={isLoading} className="w-full">
+        {isLoading && <Spinner size="sm" className="mr-2" />}
+        <span className="mr-2">{isAuthenticated ? '📝' : '🔒'}</span>
+        {isAuthenticated ? 'Get Real Transcript' : 'Get Transcript (Auth Required)'}
       </Button>
-    </ListItem>
+    </div>
   );
 }

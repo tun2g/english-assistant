@@ -25,11 +25,8 @@
     },
     "types": ["chrome", "vite/client", "node"]
   },
-  "include": [
-    "src/**/*",
-    "../../packages/shared/src",
-    "../../packages/ui/src"
-  ],
+  "include": ["src/**/*", "../../packages/shared/src", "../../packages/ui/src"],
+  "exclude": ["src/manifest.config.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"

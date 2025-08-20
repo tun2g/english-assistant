@@ -4,18 +4,13 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-  ],
+  extends: ['eslint:recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint',
-  ],
+  plugins: ['@typescript-eslint'],
   rules: {
     // TypeScript rules
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
@@ -23,34 +18,29 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    
+
     // General JavaScript/TypeScript rules
     'prefer-const': 'error',
     'no-var': 'error',
     'no-console': 'warn',
     'no-debugger': 'error',
     'no-alert': 'error',
-    
-    // Code style
-    'indent': ['error', 2],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    'comma-dangle': ['error', 'always-multiline'],
-    'object-curly-spacing': ['error', 'always'],
-    'array-bracket-spacing': ['error', 'never'],
-    
+
+    // Code style - disabled in favor of Prettier
+    indent: 'off',
+    '@typescript-eslint/indent': 'off',
+    quotes: 'off',
+    semi: 'off',
+    'comma-dangle': 'off',
+    'object-curly-spacing': 'off',
+    'array-bracket-spacing': 'off',
+
     // Best practices
-    'eqeqeq': ['error', 'always'],
+    eqeqeq: ['error', 'always'],
     'no-duplicate-imports': 'error',
     'no-unused-expressions': 'error',
     'prefer-template': 'error',
     'prefer-arrow-callback': 'error',
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    '*.min.js',
-    'coverage/',
-  ],
+  ignorePatterns: ['node_modules/', 'dist/', 'build/', '*.min.js', 'coverage/'],
 };

@@ -1,9 +1,55 @@
 {
-  "extends": ["@english/eslint-config/base"],
-  "ignorePatterns": [
-    "apps/*/dist/**",
-    "packages/*/dist/**",
-    "node_modules/**",
-    "**/*.min.js"
+  "root": true,
+  "extends": ["eslint:recommended", "prettier"],
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": ["apps/*/dist/**", "packages/*/dist/**", "node_modules/**", "**/*.min.js", "**/*.d.ts"],
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": "warn",
+    "no-empty": "warn",
+    "no-undef": "off",
+    "comma-dangle": "off",
+    "quotes": "off",
+    "semi": "off",
+    "indent": "off",
+    "@typescript-eslint/indent": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "plugins": ["prettier-plugin-tailwindcss"],
+        "singleQuote": true,
+        "trailingComma": "es5",
+        "endOfLine": "auto",
+        "printWidth": 120
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["eslint:recommended"],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
   ]
 }

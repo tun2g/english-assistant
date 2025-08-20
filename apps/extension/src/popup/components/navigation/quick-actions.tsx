@@ -1,30 +1,55 @@
-import React from 'react';
-import { Block, List, ListItem } from 'framework7-react';
+import { usePageInfoQuery } from '@/hooks';
+import { Button, Card, CardContent } from '@english/ui';
 
 export function QuickActions() {
+  const { pageInfo } = usePageInfoQuery();
+
   return (
-    <>
-      <Block strong>
-        <p>Navigate to a YouTube video to use dual-language transcripts.</p>
-      </Block>
-      
-      <List>
-        <ListItem 
-          title="Quick Translate"
-          subtitle="Translate selected text"
+    <div className="space-y-4">
+      {!pageInfo.isYouTube && (
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-sm">
+              Navigate to a YouTube video to use dual-language transcripts.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-2">
+        <Button
+          variant="outline"
+          className="h-auto w-full justify-start p-4"
           onClick={() => console.log('Quick translate clicked')}
-        />
-        <ListItem 
-          title="Word Practice"
-          subtitle="Practice vocabulary"
+        >
+          <div className="text-left">
+            <div className="font-medium">Quick Translate</div>
+            <div className="text-muted-foreground text-sm">Translate selected text</div>
+          </div>
+        </Button>
+
+        <Button
+          variant="outline"
+          className="h-auto w-full justify-start p-4"
           onClick={() => console.log('Word practice clicked')}
-        />
-        <ListItem 
-          title="Learning Progress"
-          subtitle="View your progress"
+        >
+          <div className="text-left">
+            <div className="font-medium">Word Practice</div>
+            <div className="text-muted-foreground text-sm">Practice vocabulary</div>
+          </div>
+        </Button>
+
+        <Button
+          variant="outline"
+          className="h-auto w-full justify-start p-4"
           onClick={() => console.log('Progress clicked')}
-        />
-      </List>
-    </>
+        >
+          <div className="text-left">
+            <div className="font-medium">Learning Progress</div>
+            <div className="text-muted-foreground text-sm">View your progress</div>
+          </div>
+        </Button>
+      </div>
+    </div>
   );
 }

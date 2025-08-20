@@ -1,24 +1,23 @@
 import React from 'react';
-import { Block } from 'framework7-react';
+import { Badge, Alert, AlertDescription } from '@english/ui';
+import { useOAuthQuery } from '../../../hooks/use-oauth-query';
 
-interface OAuthStatusProps {
-  isAuthenticated: boolean;
-}
+export function OAuthStatus() {
+  const { isAuthenticated } = useOAuthQuery();
 
-export function OAuthStatus({ isAuthenticated }: OAuthStatusProps) {
   return (
-    <Block strong>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+    <div className="border-b p-4">
+      <div className="mb-2 flex items-center gap-2">
         <span>{isAuthenticated ? '✅' : '🔒'}</span>
-        <span style={{ fontSize: '14px', color: isAuthenticated ? '#4caf50' : '#ff9800' }}>
+        <Badge variant={isAuthenticated ? 'success' : 'warning'}>
           YouTube API {isAuthenticated ? 'Connected' : 'Not Connected'}
-        </span>
+        </Badge>
       </div>
       {!isAuthenticated && (
-        <p style={{ fontSize: '12px', color: '#666', margin: '4px 0' }}>
-          Connect to access real YouTube transcripts
-        </p>
+        <Alert variant="info">
+          <AlertDescription>Connect to access real YouTube transcripts</AlertDescription>
+        </Alert>
       )}
-    </Block>
+    </div>
   );
 }

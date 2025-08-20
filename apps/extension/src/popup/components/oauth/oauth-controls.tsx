@@ -1,25 +1,16 @@
 import React from 'react';
-import { Button, ListItem } from 'framework7-react';
+import { Button, Alert, AlertDescription, Spinner } from '@english/ui';
+import { useOAuthQuery } from '../../../hooks';
 
-interface OAuthControlsProps {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  onConnect: () => Promise<void>;
-  onDisconnect: () => Promise<void>;
-}
+export function OAuthControls() {
+  const { isAuthenticated, isLoading, connect, disconnect, error } = useOAuthQuery();
 
-export function OAuthControls({ 
-  isAuthenticated, 
-  isLoading, 
-  onConnect, 
-  onDisconnect 
-}: OAuthControlsProps) {
   const handleClick = async () => {
     try {
       if (isAuthenticated) {
-        await onDisconnect();
+        await disconnect();
       } else {
-        await onConnect();
+        await connect();
       }
     } catch (error) {
       console.error('OAuth action failed:', error);
@@ -27,21 +18,21 @@ export function OAuthControls({
   };
 
   return (
-    <ListItem>
-      <Button 
-        fill={!isAuthenticated}
-        color={isAuthenticated ? "red" : "blue"}
+    <div className="p-4">
+      <Button
+        variant={isAuthenticated ? 'destructive' : 'default'}
         onClick={handleClick}
         disabled={isLoading}
-        style={{ width: '100%' }}
+        className="w-full"
       >
-        {isLoading 
-          ? 'Connecting...' 
-          : isAuthenticated 
-            ? 'Disconnect YouTube' 
-            : 'Connect YouTube Account'
-        }
+        {isLoading && <Spinner size="sm" className="mr-2" />}
+        {isLoading ? 'Connecting...' : isAuthenticated ? 'Disconnect YouTube' : 'Connect YouTube Account'}
       </Button>
-    </ListItem>
+      {error && (
+        <Alert variant="destructive" className="mt-2">
+          <AlertDescription>Failed to {isAuthenticated ? 'disconnect' : 'connect'}. Please try again.</AlertDescription>
+        </Alert>
+      )}
+    </div>
   );
 }

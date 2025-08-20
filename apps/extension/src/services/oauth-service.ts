@@ -1,7 +1,7 @@
 // OAuth authentication service for Chrome extension
 export class OAuthService {
   private baseUrl: string;
-  
+
   constructor(baseUrl: string = 'http://localhost:8000/api/v1') {
     this.baseUrl = baseUrl;
   }
@@ -24,10 +24,9 @@ export class OAuthService {
       const data = await response.json();
       return { authenticated: data.authenticated };
     } catch (error) {
-      console.error('Failed to check OAuth status:', error);
-      return { 
-        authenticated: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        authenticated: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -50,9 +49,8 @@ export class OAuthService {
       const data = await response.json();
       return { authUrl: data.authUrl, state: data.state };
     } catch (error) {
-      console.error('Failed to get auth URL:', error);
-      return { 
-        error: error instanceof Error ? error.message : 'Failed to get authorization URL'
+      return {
+        error: error instanceof Error ? error.message : 'Failed to get authorization URL',
       };
     }
   }
@@ -60,7 +58,7 @@ export class OAuthService {
   // Open OAuth flow in new tab
   async initiateOAuth(): Promise<void> {
     const result = await this.getAuthUrl();
-    
+
     if ('error' in result) {
       throw new Error(result.error);
     }
@@ -70,7 +68,7 @@ export class OAuthService {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
       chrome.runtime.sendMessage({
         action: 'OPEN_TAB',
-        url: result.authUrl
+        url: result.authUrl,
       });
     } else {
       // Fallback: open in same window (not ideal for OAuth)
@@ -95,10 +93,9 @@ export class OAuthService {
 
       return { success: true };
     } catch (error) {
-      console.error('Failed to revoke OAuth:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to revoke authorization'
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to revoke authorization',
       };
     }
   }

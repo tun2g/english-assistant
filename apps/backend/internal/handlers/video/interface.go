@@ -10,8 +10,6 @@ type HandlerInterface interface {
 	// GetTranscript retrieves transcript for a video
 	GetTranscript(c *gin.Context)
 	
-	// TranslateTranscript translates a video transcript
-	TranslateTranscript(c *gin.Context)
 	
 	// GetAvailableLanguages returns available transcript languages for a video
 	GetAvailableLanguages(c *gin.Context)

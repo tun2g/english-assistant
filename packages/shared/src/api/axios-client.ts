@@ -1,15 +1,15 @@
-import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 import { APP_CONFIG } from '../config/app-config';
 import { API_ENDPOINTS, HTTP_STATUS } from '../constants/api-constants';
-import {
-  getAccessToken,
-  getRefreshToken,
-  saveTokens,
-  clearTokens,
-} from '../store/auth-store';
-import type { AuthResponse, RefreshTokenRequest } from '../types/auth-types';
+import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from '../store/auth-store';
 import type { ApiResponse } from '../types/api-types';
+import type { AuthResponse, RefreshTokenRequest } from '../types/auth-types';
 
 interface RetryableAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -39,7 +39,7 @@ function processQueue(error: unknown, token: string | null = null): void {
       resolve(token!);
     }
   });
-  
+
   failedQueue = [];
 }
 
@@ -70,19 +70,21 @@ apiClient.interceptors.response.use(
         // If already refreshing, queue the request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return apiClient(originalRequest);
-        }).catch((err) => {
-          return Promise.reject(err);
-        });
+        })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       const refreshToken = getRefreshToken();
-      
+
       if (!refreshToken) {
         clearTokens();
         processQueue(error, null);
@@ -101,9 +103,9 @@ apiClient.interceptors.response.use(
 
         const { accessToken } = response.data.data;
         saveTokens(response.data.data);
-        
+
         processQueue(null, accessToken);
-        
+
         // Retry original request
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
@@ -121,46 +123,28 @@ apiClient.interceptors.response.use(
 );
 
 // API methods
-export async function apiGet<T>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
-  const response = await apiClient.get<ApiResponse<T>>(url, config);
+export async function apiGet<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  const response = await apiClient.get<T>(url, config);
   return response.data;
 }
 
-export async function apiPost<T>(
-  url: string,
-  data?: unknown,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
-  const response = await apiClient.post<ApiResponse<T>>(url, data, config);
+export async function apiPost<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  const response = await apiClient.post<T>(url, data, config);
   return response.data;
 }
 
-export async function apiPut<T>(
-  url: string,
-  data?: unknown,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
-  const response = await apiClient.put<ApiResponse<T>>(url, data, config);
+export async function apiPut<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  const response = await apiClient.put<T>(url, data, config);
   return response.data;
 }
 
-export async function apiPatch<T>(
-  url: string,
-  data?: unknown,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
-  const response = await apiClient.patch<ApiResponse<T>>(url, data, config);
+export async function apiPatch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  const response = await apiClient.patch<T>(url, data, config);
   return response.data;
 }
 
-export async function apiDelete<T>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
-  const response = await apiClient.delete<ApiResponse<T>>(url, config);
+export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  const response = await apiClient.delete<T>(url, config);
   return response.data;
 }
 

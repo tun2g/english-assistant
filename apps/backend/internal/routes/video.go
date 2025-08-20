@@ -17,7 +17,6 @@ func SetupVideoRoutes(rg *gin.RouterGroup, handler video.HandlerInterface, authM
 		
 		// Transcript operations
 		videoGroup.GET("/:videoUrl/transcript", handler.GetTranscript)
-		videoGroup.POST("/:videoUrl/translate", handler.TranslateTranscript)
 		videoGroup.GET("/:videoUrl/languages", handler.GetAvailableLanguages)
 		
 		// System endpoints

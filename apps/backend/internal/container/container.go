@@ -4,6 +4,7 @@ import (
 	"app-backend/internal/config"
 	"app-backend/internal/handlers/auth"
 	"app-backend/internal/handlers/oauth"
+	"app-backend/internal/handlers/translation"
 	"app-backend/internal/handlers/user"
 	"app-backend/internal/handlers/video"
 	"app-backend/internal/logger"
@@ -13,6 +14,7 @@ import (
 	jwtService "app-backend/internal/services/jwt"
 	oauthService "app-backend/internal/services/oauth"
 	transcriptService "app-backend/internal/services/transcript"
+	translationService "app-backend/internal/services/translation"
 	userService "app-backend/internal/services/user"
 	videoService "app-backend/internal/services/video"
 	"app-backend/pkg/gemini"
@@ -44,6 +46,7 @@ type Container struct {
 	VideoService    videoService.ServiceInterface
 	YouTubeOAuthService oauthService.ServiceInterface
 	TranscriptService   transcriptService.ServiceInterface
+	TranslationService  translationService.ServiceInterface
 
 	// External Services
 	YouTubeService *youtube.Service
@@ -53,10 +56,11 @@ type Container struct {
 	AuthMiddleware *middleware.AuthMiddleware
 
 	// Handlers
-	AuthHandler  auth.HandlerInterface
-	UserHandler  user.HandlerInterface
-	VideoHandler video.HandlerInterface
-	OAuthHandler oauth.HandlerInterface
+	AuthHandler       auth.HandlerInterface
+	UserHandler       user.HandlerInterface
+	VideoHandler      video.HandlerInterface
+	OAuthHandler      oauth.HandlerInterface
+	TranslationHandler translation.HandlerInterface
 }
 
 // NewContainer creates and initializes all dependencies
@@ -126,6 +130,17 @@ func (c *Container) initServices() {
 		c.TranscriptService = transcriptSvc
 	}
 	
+	// Initialize translation service
+	translationSvc, err := translationService.NewService(&translationService.Config{
+		GeminiAPIKey: c.Config.ExternalAPIs.Gemini.APIKey,
+		Logger:       c.Logger,
+	})
+	if err != nil {
+		c.Logger.Error("Failed to initialize translation service", zap.Error(err))
+	} else {
+		c.TranslationService = translationSvc
+	}
+	
 	c.VideoService = videoService.NewVideoService(c.YouTubeService, c.GeminiService, c.Logger.Zap())
 }
 
@@ -140,4 +155,5 @@ func (c *Container) initHandlers() {
 	c.UserHandler = user.NewUserHandler(c.UserService, c.Logger)
 	c.VideoHandler = video.NewVideoHandler(c.VideoService, c.TranscriptService, c.Logger)
 	c.OAuthHandler = oauth.NewOAuthHandler(c.YouTubeOAuthService, c.Logger)
+	c.TranslationHandler = translation.NewTranslationHandler(c.TranslationService, c.Logger)
 }

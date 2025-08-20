@@ -1,5 +1,5 @@
 import React from 'react';
-import { Block, Button } from 'framework7-react';
+import { Button } from '@english/ui';
 
 export function SettingsButton() {
   const handleSettingsClick = () => {
@@ -7,10 +7,8 @@ export function SettingsButton() {
   };
 
   return (
-    <Block>
-      <Button fill onClick={handleSettingsClick}>
-        Settings
-      </Button>
-    </Block>
+    <Button className="w-full" onClick={handleSettingsClick}>
+      Settings
+    </Button>
   );
 }

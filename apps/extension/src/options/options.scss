@@ -1,0 +1,17 @@
+@use '../styles/globals.scss';
+
+/* Options page specific styles */
+body {
+  margin: 0;
+  padding: 0;
+  @apply bg-secondary/5;
+}
+
+#app {
+  min-height: 100vh;
+  
+  .options-container {
+    @apply font-inter text-sm text-foreground bg-background;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+}

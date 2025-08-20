@@ -1,0 +1,285 @@
+// Import Tailwind CSS directives
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Import custom SCSS variables and mixins
+@use "variables" as *;
+@use "mixins" as *;
+
+// Font face declarations for Inter font family
+@layer base {
+  @font-face {
+    font-family: "Inter";
+    font-weight: 400;
+    font-style: normal;
+    src: url("../assets/fonts/inter/Inter-Regular.woff2") format("woff2"),
+         url("../assets/fonts/inter/Inter-Regular.woff") format("woff");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-weight: 500;
+    font-style: normal;
+    src: url("../assets/fonts/inter/Inter-Medium.woff2") format("woff2"),
+         url("../assets/fonts/inter/Inter-Medium.woff") format("woff");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-weight: 600;
+    font-style: normal;
+    src: url("../assets/fonts/inter/Inter-SemiBold.woff2") format("woff2"),
+         url("../assets/fonts/inter/Inter-SemiBold.woff") format("woff");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-weight: 700;
+    font-style: normal;
+    src: url("../assets/fonts/inter/Inter-Bold.woff2") format("woff2"),
+         url("../assets/fonts/inter/Inter-Bold.woff") format("woff");
+    font-display: swap;
+  }
+
+  // Global styles for extension components
+  * {
+    @apply font-inter text-sm focus:outline-none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+  }
+
+  // Host and root element styles
+  :root, :host {
+    @apply text-extension-text;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+
+  // Body styles for extension pages (popup, options)
+  body {
+    @apply bg-extension-bg text-extension-text;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Ensure proper sizing for extension containers
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+  }
+
+  // Disable text selection in UI elements unless needed
+  button, .btn, .clickable {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  // Focus styles for accessibility
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply ring-2 ring-primary-500 ring-offset-2 outline-none;
+  }
+}
+
+// Component layer for reusable component styles
+@layer components {
+  // Button components
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    
+    &:disabled {
+      @apply bg-secondary-300 text-secondary-500 cursor-not-allowed;
+    }
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-100 hover:bg-secondary-200 active:bg-secondary-300 text-secondary-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    
+    &:disabled {
+      @apply bg-secondary-100 text-secondary-400 cursor-not-allowed;
+    }
+  }
+
+  .btn-outline {
+    @apply border border-secondary-300 bg-white hover:bg-secondary-50 active:bg-secondary-100 text-secondary-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    
+    &:disabled {
+      @apply border-secondary-200 bg-white text-secondary-400 cursor-not-allowed;
+    }
+  }
+
+  .btn-ghost {
+    @apply bg-transparent hover:bg-secondary-100 active:bg-secondary-200 text-secondary-600 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2;
+    
+    &:disabled {
+      @apply bg-transparent text-secondary-400 cursor-not-allowed;
+    }
+  }
+
+  // Card components
+  .card {
+    @apply bg-white rounded-lg shadow-custom-sm border border-extension-border;
+  }
+
+  .card-header {
+    @apply p-6 border-b border-extension-border;
+  }
+
+  .card-content {
+    @apply p-6;
+  }
+
+  .card-footer {
+    @apply p-6 border-t border-extension-border bg-extension-bg-secondary;
+  }
+
+  // Form components
+  .input {
+    @apply border border-extension-border bg-white rounded-lg px-3 py-2 text-sm placeholder-secondary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200;
+    
+    &:invalid {
+      @apply border-error-500 focus:border-error-500 focus:ring-error-500/20;
+    }
+
+    &:disabled {
+      @apply bg-secondary-50 border-secondary-200 text-secondary-400 cursor-not-allowed;
+    }
+  }
+
+  .textarea {
+    @apply input resize-y min-h-[100px];
+  }
+
+  .select {
+    @apply input cursor-pointer pr-10;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+  }
+
+  // Modal and overlay components
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black/80 z-[2147483647] flex items-center justify-center animate-fade-in;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg shadow-custom-xl max-w-[90%] max-h-[80vh] overflow-y-auto animate-scale-in;
+  }
+
+  // Loading components
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-secondary-300 border-t-primary-600;
+  }
+
+  // Extension specific components
+  .extension-panel {
+    @apply bg-white border border-extension-border rounded-lg shadow-custom-md;
+  }
+
+  .extension-header {
+    @apply flex items-center justify-between p-4 border-b border-extension-border;
+  }
+
+  .extension-footer {
+    @apply flex items-center justify-end gap-3 p-4 border-t border-extension-border bg-extension-bg-secondary;
+  }
+}
+
+// Utility layer for custom utilities and overrides
+@layer utilities {
+  // Custom scrollbar styles
+  .custom-scrollbar {
+    scrollbar-width: thin;
+
+    
+    &::-webkit-scrollbar {
+      @apply w-2 h-2;
+    }
+    
+    &::-webkit-scrollbar-track {
+      @apply bg-transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      @apply bg-secondary-300 rounded-full;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      @apply bg-secondary-400;
+    }
+  }
+
+  // Text utilities
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  // Extension specific utilities
+  .extension-safe-area {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  // Animation utilities
+  .animate-fade-in {
+    animation: fadeIn 0.15s ease-out forwards;
+  }
+
+  .animate-fade-out {
+    animation: fadeOut 0.15s ease-in forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.2s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.15s ease-out forwards;
+  }
+
+  // Z-index utilities for extension layering
+  .z-extension-base {
+    z-index: 2147483640;
+  }
+
+  .z-extension-overlay {
+    z-index: 2147483645;
+  }
+
+  .z-extension-modal {
+    z-index: 2147483647;
+  }
+
+  .z-extension-tooltip {
+    z-index: 2147483648;
+  }
+
+  // Hide scrollbars completely
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 480px) {
+  .modal-content {
+    @apply max-w-[95%] max-h-[90vh] m-4;
+  }
+}

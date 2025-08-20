@@ -16,9 +16,12 @@ export const API_ENDPOINTS = {
     LANGUAGES: '/api/v1/video/languages',
     INFO: (videoId: string) => `/api/v1/video/${videoId}/info`,
     TRANSCRIPT: (videoId: string) => `/api/v1/video/${videoId}/transcript`,
-    TRANSLATE: (videoId: string) => `/api/v1/video/${videoId}/translate`,
     AVAILABLE_LANGUAGES: (videoId: string) => `/api/v1/video/${videoId}/languages`,
     CAPABILITIES: (videoId: string) => `/api/v1/video/${videoId}/capabilities`,
+  },
+  TRANSLATION: {
+    TRANSLATE_TEXTS: '/api/v1/translate',
+    SUPPORTED_LANGUAGES: '/api/v1/translate/languages',
   },
 } as const;
 
@@ -47,6 +50,7 @@ export const API_CONFIG = {
   RETRY_DELAY: 1000,
 } as const;
 
-export type HttpMethod = typeof HTTP_METHODS[keyof typeof HTTP_METHODS];
-export type HttpStatus = typeof HTTP_STATUS[keyof typeof HTTP_STATUS];
-export type ApiEndpoint = typeof API_ENDPOINTS[keyof typeof API_ENDPOINTS][keyof typeof API_ENDPOINTS[keyof typeof API_ENDPOINTS]];
+export type HttpMethod = (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS];
+export type HttpStatus = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];
+export type ApiEndpoint =
+  (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS][keyof (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS]];

@@ -75,11 +75,12 @@ func main() {
 
 	// Setup all application routes
 	routeConfig := &routes.RouteConfig{
-		AuthHandler:    appContainer.AuthHandler,
-		UserHandler:    appContainer.UserHandler,
-		VideoHandler:   appContainer.VideoHandler,
-		OAuthHandler:   appContainer.OAuthHandler,
-		AuthMiddleware: appContainer.AuthMiddleware,
+		AuthHandler:        appContainer.AuthHandler,
+		UserHandler:        appContainer.UserHandler,
+		VideoHandler:       appContainer.VideoHandler,
+		OAuthHandler:       appContainer.OAuthHandler,
+		TranslationHandler: appContainer.TranslationHandler,
+		AuthMiddleware:     appContainer.AuthMiddleware,
 	}
 	routes.SetupRoutes(router, routeConfig)
 	appLogger.Info("Routes configured successfully")

@@ -46,44 +46,6 @@ type TranscriptSegmentResponse struct {
 	Index     int                       `json:"index"`
 }
 
-// TranslateTranscriptUriRequest represents the URI parameters for translate transcript
-type TranslateTranscriptUriRequest struct {
-	VideoURL string `uri:"videoUrl" binding:"required"`
-}
-
-// TranslateTranscriptBodyRequest represents the JSON body for translate transcript
-type TranslateTranscriptBodyRequest struct {
-	TargetLang  string `json:"targetLang" binding:"required"`
-	SourceLang  string `json:"sourceLang"`
-	CacheResult bool   `json:"cacheResult"`
-}
-
-// TranslateTranscriptRequest represents a request to translate transcript
-type TranslateTranscriptRequest struct {
-	VideoURL     string `uri:"videoUrl" binding:"required"`
-	TargetLang   string `json:"targetLang" binding:"required"`
-	SourceLang   string `json:"sourceLang"`
-	CacheResult  bool   `json:"cacheResult"`
-}
-
-// TranslateTranscriptResponse represents translated transcript response
-type TranslateTranscriptResponse struct {
-	VideoID      string                         `json:"videoId"`
-	Provider     types.VideoProvider            `json:"provider"`
-	SourceLang   string                         `json:"sourceLang"`
-	TargetLang   string                         `json:"targetLang"`
-	Segments     []TranscriptSegmentResponse    `json:"segments"`
-	Translations []TranslatedSegmentResponse    `json:"translations"`
-	Cached       bool                          `json:"cached"`
-}
-
-// TranslatedSegmentResponse represents a translated segment
-type TranslatedSegmentResponse struct {
-	Index          int    `json:"index"`
-	OriginalText   string `json:"originalText"`
-	TranslatedText string `json:"translatedText"`
-}
-
 // GetAvailableLanguagesRequest represents a request to get available languages
 type GetAvailableLanguagesRequest struct {
 	VideoURL string `uri:"videoUrl" binding:"required"`
@@ -133,15 +95,6 @@ func ConvertToTranscriptSegmentResponse(segment types.TranscriptSegment) Transcr
 		EndTime:   segment.EndTime,
 		Text:      segment.Text,
 		Index:     segment.Index,
-	}
-}
-
-// ConvertToTranslatedSegmentResponse converts internal type to DTO
-func ConvertToTranslatedSegmentResponse(segment types.TranslatedSegment) TranslatedSegmentResponse {
-	return TranslatedSegmentResponse{
-		Index:          segment.Index,
-		OriginalText:   segment.OriginalText,
-		TranslatedText: segment.TranslatedText,
 	}
 }
 

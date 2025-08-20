@@ -1,0 +1,17 @@
+@use '../styles/globals.scss';
+
+/* Popup specific styles */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  min-width: 320px;
+  max-width: 400px;
+  
+  .popup-container {
+    @apply font-inter text-sm text-foreground bg-background;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+}

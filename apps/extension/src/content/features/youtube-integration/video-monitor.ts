@@ -24,7 +24,7 @@ export class VideoMonitor {
     console.log('VideoMonitor: Starting video monitoring...');
     this.isMonitoring = true;
     this.lastUrl = location.href;
-    
+
     this.setupUrlChangeMonitoring();
     this.setupPopstateListener();
   }
@@ -35,7 +35,7 @@ export class VideoMonitor {
 
     console.log('VideoMonitor: Stopping video monitoring...');
     this.isMonitoring = false;
-    
+
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
@@ -47,17 +47,21 @@ export class VideoMonitor {
 
   // Setup URL change monitoring using MutationObserver
   private setupUrlChangeMonitoring(): void {
+    // Use a much more specific observer that only watches for actual navigation changes
     this.observer = new MutationObserver(() => {
       const currentUrl = location.href;
       if (currentUrl !== this.lastUrl) {
+        console.log('VideoMonitor: URL changed from', this.lastUrl, 'to', currentUrl);
         this.lastUrl = currentUrl;
         this.handleUrlChange();
       }
     });
 
-    this.observer.observe(document.body, {
+    // Only observe the main app element instead of entire body
+    const appElement = document.querySelector('#content, #page-manager, ytd-app') || document.body;
+    this.observer.observe(appElement, {
       childList: true,
-      subtree: true
+      subtree: false, // Don't watch all children, just direct children
     });
   }
 
@@ -80,7 +84,7 @@ export class VideoMonitor {
   private async checkCurrentVideo(): Promise<void> {
     const videoId = extractVideoIdFromCurrentUrl();
     console.log('VideoMonitor: Checking video ID:', videoId);
-    
+
     await this.callbacks.onVideoChange(videoId);
   }
 }

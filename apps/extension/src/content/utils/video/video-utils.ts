@@ -1,9 +1,9 @@
-import { VIDEO_URL_PATTERNS } from '../../../shared/constants/extension-constants';
+import { VIDEO_URL_PATTERNS } from '../../../shared/constants';
 
 // Utility function to extract video ID from URL
 export function extractVideoId(url: string, provider: string): string | null {
   const trimmedUrl = url.trim();
-  
+
   if (provider.toUpperCase() === 'YOUTUBE') {
     const patterns = VIDEO_URL_PATTERNS[provider.toUpperCase()];
     if (patterns) {
@@ -15,7 +15,7 @@ export function extractVideoId(url: string, provider: string): string | null {
       }
     }
   }
-  
+
   return null;
 }
 

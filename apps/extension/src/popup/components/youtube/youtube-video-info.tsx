@@ -1,5 +1,4 @@
 import React from 'react';
-import { Block } from 'framework7-react';
 import type { PageInfo } from '../../../shared/types/extension-types';
 
 interface YouTubeVideoInfoProps {
@@ -8,9 +7,9 @@ interface YouTubeVideoInfoProps {
 
 export function YouTubeVideoInfo({ pageInfo }: YouTubeVideoInfoProps) {
   return (
-    <Block strong>
-      <h4>🎥 YouTube Video Detected</h4>
-      <p className="text-color-gray">{pageInfo.title}</p>
-    </Block>
+    <div className="border-b p-4">
+      <h4 className="mb-2 font-medium">🎥 YouTube Video Detected</h4>
+      <p className="text-muted-foreground text-sm">{pageInfo.title}</p>
+    </div>
   );
 }

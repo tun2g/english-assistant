@@ -19,19 +19,22 @@
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@english/eslint-config": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.55.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "turbo": "^1.11.2",
     "typescript": "^5.3.3"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["pnpm lint --fix", "pnpm format"],
-    "*.{json,md,yaml,yml}": ["pnpm format"],
-    "*.go": ["cd apps/backend && make format && make lint"]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix --fix-type problem,suggestion,layout", "prettier --write"],
+    "*.{json,md,yaml,yml}": ["prettier --write"],
+    "apps/backend/**/*.go": ["cd apps/backend && make format && make lint"]
   },
   "packageManager": "pnpm@8.14.0",
   "engines": {

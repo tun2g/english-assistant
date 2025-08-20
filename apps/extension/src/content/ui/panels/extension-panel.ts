@@ -1,4 +1,4 @@
-import { EXTENSION_CLASSES } from '../../../shared/constants/extension-constants';
+import { EXTENSION_CLASSES } from '../../../shared/constants';
 import { getVideoContainer, removeElementIfExists } from '../../utils/dom/dom-utils';
 
 export interface ExtensionPanelCallbacks {
@@ -59,7 +59,7 @@ export class ExtensionPanel {
     `;
 
     const oauthStatusHtml = this.createOAuthStatusHtml();
-    
+
     this.panel.innerHTML = `
       <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3 style="margin: 0; font-size: 16px; font-weight: 600;">English Learning Assistant</h3>

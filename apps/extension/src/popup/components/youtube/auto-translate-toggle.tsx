@@ -1,27 +1,32 @@
 import React from 'react';
-import { ListItem, Toggle } from 'framework7-react';
+import { Switch, Alert, AlertDescription } from '@english/ui';
+import { useAutoTranslateQuery } from '../../../hooks';
 
-interface AutoTranslateToggleProps {
-  isEnabled: boolean;
-  onToggle: (enabled: boolean) => Promise<void>;
-}
+export function AutoTranslateToggle() {
+  const { isEnabled, toggle, isToggling, error } = useAutoTranslateQuery();
 
-export function AutoTranslateToggle({ isEnabled, onToggle }: AutoTranslateToggleProps) {
-  const handleToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToggle = async (checked: boolean) => {
     try {
-      await onToggle(e.target.checked);
+      await toggle(checked);
     } catch (error) {
       console.error('Failed to toggle auto-translate:', error);
     }
   };
 
   return (
-    <ListItem title="Auto-translate Videos">
-      <Toggle
-        slot="after"
-        checked={isEnabled}
-        onChange={handleToggle}
-      />
-    </ListItem>
+    <div className="border-b p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">Auto-translate Videos</span>
+          <span className="text-xs text-gray-500">Automatically translate video content</span>
+        </div>
+        <Switch checked={isEnabled} onCheckedChange={handleToggle} disabled={isToggling} />
+      </div>
+      {error && (
+        <Alert variant="destructive" className="mt-2">
+          <AlertDescription>Failed to update setting. Please try again.</AlertDescription>
+        </Alert>
+      )}
+    </div>
   );
 }

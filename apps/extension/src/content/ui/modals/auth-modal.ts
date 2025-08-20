@@ -1,4 +1,4 @@
-import { EXTENSION_CLASSES } from '../../../shared/constants/extension-constants';
+import { EXTENSION_CLASSES } from '../../../shared/constants';
 
 export interface AuthModalCallbacks {
   onConnect: () => Promise<void>;
@@ -103,10 +103,9 @@ export class AuthModal {
       try {
         connectBtn.textContent = 'Connecting...';
         connectBtn.disabled = true;
-        
+
         await this.callbacks.onConnect();
         this.hide();
-        
       } catch (error) {
         console.error('OAuth connection failed:', error);
         connectBtn.textContent = 'Connect YouTube Account';
@@ -115,7 +114,7 @@ export class AuthModal {
     });
 
     // Close on outside click
-    this.modal.addEventListener('click', (e) => {
+    this.modal.addEventListener('click', e => {
       if (e.target === this.modal) {
         this.hide();
         this.callbacks.onCancel();

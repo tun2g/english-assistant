@@ -11,8 +11,6 @@ func NewVideoDocs() {
 	_ = dto.VideoInfoResponse{}
 	_ = dto.GetTranscriptRequest{}
 	_ = dto.GetTranscriptResponse{}
-	_ = dto.TranslateTranscriptRequest{}
-	_ = dto.TranslateTranscriptResponse{}
 	_ = dto.GetAvailableLanguagesResponse{}
 	_ = dto.VideoCapabilitiesResponse{}
 	_ = dto.GetSupportedProvidersResponse{}
@@ -49,22 +47,6 @@ func VideoGetInfo() {}
 // @Router /api/v1/video/{videoUrl}/transcript [get]
 // @Security BearerAuth
 func VideoGetTranscript() {}
-
-// VideoTranslateTranscript godoc
-// @Summary Translate video transcript
-// @Description Translate a video transcript to the target language using AI
-// @Tags video
-// @Accept json
-// @Produce json
-// @Param videoUrl path string true "Video URL (base64 encoded)"
-// @Param request body dto.TranslateTranscriptRequest true "Translation request"
-// @Success 200 {object} dto.TranslateTranscriptResponse "Translated transcript"
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 404 {object} dto.ErrorResponse "Original transcript not found"
-// @Failure 500 {object} dto.ErrorResponse "Translation service error"
-// @Router /api/v1/video/{videoUrl}/translate [post]
-// @Security BearerAuth
-func VideoTranslateTranscript() {}
 
 // VideoGetAvailableLanguages godoc
 // @Summary Get available transcript languages

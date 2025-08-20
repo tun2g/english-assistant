@@ -1,0 +1,222 @@
+// Import Tailwind CSS directives
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Base layer for extension-specific styles
+@layer base {
+  // CSS variables from @english/ui for consistency
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+// Extension-specific additional styles
+.english-extension-container {
+  @apply font-inter text-sm text-foreground;
+  
+  // Override any YouTube styles that might interfere
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  line-height: 1.5 !important;
+}
+
+// Content script specific styles (when not using Shadow DOM)
+.english-extension-content-script {
+  // Ensure our styles have higher specificity than YouTube's
+  &.english-extension-container {
+    all: initial !important;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    
+    * {
+      all: unset !important;
+      box-sizing: border-box !important;
+    }
+    
+    // Re-apply Tailwind base styles
+    @apply font-inter text-sm text-foreground;
+  }
+  
+  // Button reset for content script context
+  button {
+    all: unset !important;
+    @apply cursor-pointer;
+  }
+  
+  // Input reset for content script context  
+  input, textarea, select {
+    all: unset !important;
+    @apply border border-border bg-background;
+  }
+}
+
+// Test component specific styles
+.english-extension-tailwind-test {
+  // Ensure test component is always visible
+  display: block !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2147483647 !important;
+}
+
+// YouTube integration specific styles
+.english-extension-youtube-integration {
+  // Player controls styles
+  .extension-player-button {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-3 rounded-lg transition-colors duration-200;
+    
+    &:focus-visible {
+      @apply ring-2 ring-ring ring-offset-2;
+    }
+  }
+  
+  // Language selector modal
+  .extension-language-selector {
+    @apply z-extension-modal animate-fade-in;
+  }
+  
+  // Transcript overlay
+  .extension-transcript-overlay {
+    @apply z-extension-overlay bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg;
+  }
+  
+  // Dual language display
+  .extension-dual-language {
+    @apply bg-background/90 backdrop-blur-sm border border-border rounded-lg p-4;
+    
+    .language-text {
+      @apply text-sm leading-relaxed;
+      
+      &.primary {
+        @apply text-foreground font-medium;
+      }
+      
+      &.secondary {
+        @apply text-muted-foreground mt-2;
+      }
+    }
+  }
+}
+
+// Animation utilities specific to extension
+@keyframes extensionSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes extensionSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+.animate-extension-slide-in {
+  animation: extensionSlideIn 0.2s ease-out forwards;
+}
+
+.animate-extension-slide-out {
+  animation: extensionSlideOut 0.15s ease-in forwards;
+}
+
+// Responsive utilities for extension UI
+@media (max-width: 480px) {
+  .extension-modal-content {
+    @apply max-w-[95%] max-h-[90vh] m-2;
+  }
+  
+  .extension-panel {
+    @apply text-xs p-3;
+  }
+  
+  .extension-button-group {
+    @apply flex-col space-y-2;
+    
+    button {
+      @apply w-full;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .english-extension-container {
+    // Increase border contrast
+    .border-extension-border {
+      border-color: #000 !important;
+    }
+    
+    // Ensure text contrast
+    .text-extension-text {
+      color: #000 !important;
+    }
+    
+    .text-extension-text-secondary {
+      color: #333 !important;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .english-extension-container {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

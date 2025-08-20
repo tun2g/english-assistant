@@ -3,7 +3,7 @@ export * from './api/axios-client';
 export * from './api/auth-api';
 export * from './api/video-api';
 
-// Config exports  
+// Config exports
 export * from './config/app-config';
 
 // Constants exports
@@ -26,3 +26,12 @@ export * from './types/video-types';
 export * from './utils/dayjs-utils';
 export * from './utils/tailwind-utils';
 export * from './utils/video-utils';
+
+// Lib exports
+export * from './lib/query-client';
+
+// Components exports
+export * from './components';
+
+// Hooks exports
+export * from './hooks';

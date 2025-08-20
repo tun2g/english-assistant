@@ -8,9 +8,9 @@ import { VIDEO_URL_PATTERNS, VIDEO_PROVIDERS } from '../constants/video-constant
 /**
  * Extract video ID from various video platform URLs
  */
-export function extractVideoId(url: string, provider?: VideoProvider): string | null {
+export function extractVideoId(url: string, provider?: VideoProvider): string {
   const trimmedUrl = url.trim();
-  
+
   if (provider) {
     // Use specific provider patterns
     const patterns = VIDEO_URL_PATTERNS[provider.toUpperCase() as keyof typeof VIDEO_URL_PATTERNS];
@@ -20,11 +20,11 @@ export function extractVideoId(url: string, provider?: VideoProvider): string | 
         return match[1];
       }
     }
-    return null;
+    return url;
   }
 
   // Try all patterns
-  for (const [providerName, patterns] of Object.entries(VIDEO_URL_PATTERNS)) {
+  for (const patterns of Object.values(VIDEO_URL_PATTERNS)) {
     for (const pattern of patterns) {
       const match = trimmedUrl.match(pattern);
       if (match) {
@@ -42,19 +42,19 @@ export function extractVideoId(url: string, provider?: VideoProvider): string | 
  */
 export function detectVideoProvider(url: string): VideoProvider | null {
   const lowerUrl = url.toLowerCase();
-  
+
   if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be') || lowerUrl.includes('youtube-nocookie.com')) {
     return VIDEO_PROVIDERS.YOUTUBE as VideoProvider;
   }
-  
+
   if (lowerUrl.includes('vimeo.com')) {
     return VIDEO_PROVIDERS.VIMEO as VideoProvider;
   }
-  
+
   if (lowerUrl.includes('twitch.tv')) {
     return VIDEO_PROVIDERS.TWITCH as VideoProvider;
   }
-  
+
   return null;
 }
 
@@ -73,15 +73,15 @@ export function validateVideoId(videoId: string, provider: VideoProvider): boole
     case VIDEO_PROVIDERS.YOUTUBE:
       // YouTube video IDs are 11 characters long and contain alphanumeric characters, hyphens, and underscores
       return /^[a-zA-Z0-9_-]{11}$/.test(videoId);
-    
+
     case VIDEO_PROVIDERS.VIMEO:
       // Vimeo video IDs are numeric
       return /^\d+$/.test(videoId);
-    
+
     case VIDEO_PROVIDERS.TWITCH:
       // Twitch video IDs are numeric
       return /^\d+$/.test(videoId);
-    
+
     default:
       return false;
   }
@@ -93,21 +93,21 @@ export function validateVideoId(videoId: string, provider: VideoProvider): boole
 export function normalizeVideoUrl(url: string): string {
   const provider = detectVideoProvider(url);
   const videoId = extractVideoId(url, provider || undefined);
-  
+
   if (!provider || !videoId) {
     return url; // Return original if we can't parse it
   }
-  
+
   switch (provider) {
     case VIDEO_PROVIDERS.YOUTUBE:
       return `https://www.youtube.com/watch?v=${videoId}`;
-    
+
     case VIDEO_PROVIDERS.VIMEO:
       return `https://vimeo.com/${videoId}`;
-    
+
     case VIDEO_PROVIDERS.TWITCH:
       return `https://www.twitch.tv/videos/${videoId}`;
-    
+
     default:
       return url;
   }
@@ -116,24 +116,29 @@ export function normalizeVideoUrl(url: string): string {
 /**
  * Generate thumbnail URL for video
  */
-export function generateThumbnailUrl(videoId: string, provider: VideoProvider, quality: 'default' | 'medium' | 'high' = 'medium'): string {
+export function generateThumbnailUrl(
+  videoId: string,
+  provider: VideoProvider,
+  quality: 'default' | 'medium' | 'high' = 'medium'
+): string {
   switch (provider) {
-    case VIDEO_PROVIDERS.YOUTUBE:
+    case VIDEO_PROVIDERS.YOUTUBE: {
       const qualityMap = {
         default: 'default',
         medium: 'mqdefault',
         high: 'hqdefault',
       };
       return `https://img.youtube.com/vi/${videoId}/${qualityMap[quality]}.jpg`;
-    
+    }
+
     case VIDEO_PROVIDERS.VIMEO:
       // Vimeo thumbnails require API call, return placeholder
       return `https://vumbnail.com/${videoId}.jpg`;
-    
+
     case VIDEO_PROVIDERS.TWITCH:
       // Twitch thumbnails are more complex, return placeholder
       return `https://static-cdn.jtvnw.net/ttv-static/404_preview-480x272.jpg`;
-    
+
     default:
       return '';
   }
@@ -146,7 +151,7 @@ export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   } else {
@@ -161,7 +166,7 @@ export function formatTimestamp(milliseconds: number): string {
   const totalSeconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  
+
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
@@ -170,7 +175,7 @@ export function formatTimestamp(milliseconds: number): string {
  */
 export function parseTimeToMilliseconds(timeString: string): number {
   const parts = timeString.split(':').map(Number);
-  
+
   if (parts.length === 2) {
     // MM:SS format
     return (parts[0] * 60 + parts[1]) * 1000;
@@ -178,7 +183,7 @@ export function parseTimeToMilliseconds(timeString: string): number {
     // HH:MM:SS format
     return (parts[0] * 3600 + parts[1] * 60 + parts[2]) * 1000;
   }
-  
+
   return 0;
 }
 
@@ -187,28 +192,28 @@ export function parseTimeToMilliseconds(timeString: string): number {
  */
 export function getLanguageFlag(languageCode: string): string {
   const flagMap: Record<string, string> = {
-    'en': '🇺🇸',
-    'es': '🇪🇸',
-    'fr': '🇫🇷',
-    'de': '🇩🇪',
-    'ja': '🇯🇵',
-    'ko': '🇰🇷',
-    'zh': '🇨🇳',
-    'pt': '🇵🇹',
-    'ru': '🇷🇺',
-    'it': '🇮🇹',
-    'ar': '🇸🇦',
-    'hi': '🇮🇳',
-    'th': '🇹🇭',
-    'vi': '🇻🇳',
-    'nl': '🇳🇱',
-    'sv': '🇸🇪',
-    'no': '🇳🇴',
-    'da': '🇩🇰',
-    'fi': '🇫🇮',
-    'pl': '🇵🇱',
+    en: '🇺🇸',
+    es: '🇪🇸',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    ja: '🇯🇵',
+    ko: '🇰🇷',
+    zh: '🇨🇳',
+    pt: '🇵🇹',
+    ru: '🇷🇺',
+    it: '🇮🇹',
+    ar: '🇸🇦',
+    hi: '🇮🇳',
+    th: '🇹🇭',
+    vi: '🇻🇳',
+    nl: '🇳🇱',
+    sv: '🇸🇪',
+    no: '🇳🇴',
+    da: '🇩🇰',
+    fi: '🇫🇮',
+    pl: '🇵🇱',
   };
-  
+
   return flagMap[languageCode] || '🌐';
 }
 
@@ -217,12 +222,12 @@ export function getLanguageFlag(languageCode: string): string {
  */
 export function createShareableUrl(videoId: string, provider: VideoProvider, timestamp?: number): string {
   const baseUrl = normalizeVideoUrl(`${provider}:${videoId}`);
-  
+
   if (timestamp && provider === VIDEO_PROVIDERS.YOUTUBE) {
     const seconds = Math.floor(timestamp / 1000);
     return `${baseUrl}&t=${seconds}s`;
   }
-  
+
   return baseUrl;
 }
 
@@ -242,6 +247,6 @@ export function getProviderDisplayName(provider: VideoProvider): string {
     vimeo: 'Vimeo',
     twitch: 'Twitch',
   };
-  
+
   return displayNames[provider] || provider;
 }

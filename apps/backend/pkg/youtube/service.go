@@ -228,14 +228,10 @@ func (s *Service) downloadCaption(ctx context.Context, captionID string) ([]type
 		return nil, fmt.Errorf("OAuth service not available - YouTube Caption API requires authentication")
 	}
 
-	if !s.oauthService.IsAuthenticated() {
-		return nil, fmt.Errorf("user not authenticated - please authenticate with YouTube to access captions")
-	}
-
-	// Get valid OAuth token
+	// Get valid OAuth token (will refresh if needed)
 	token, err := s.oauthService.GetValidToken(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get valid OAuth token: %w", err)
+		return nil, fmt.Errorf("failed to get valid OAuth token - please authenticate with YouTube: %w", err)
 	}
 
 	// Download the actual caption using authenticated API call

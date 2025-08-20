@@ -1,16 +1,9 @@
-import { 
-  EXTENSION_CLASSES, 
-  NOTIFICATION_TYPES, 
-  NOTIFICATION_DURATIONS 
-} from '../../../shared/constants/extension-constants';
+import { EXTENSION_CLASSES, NOTIFICATION_DURATIONS, NOTIFICATION_TYPES } from '../../../shared/constants';
 import type { NotificationType } from '../../../shared/types/extension-types';
 
 export class NotificationManager {
   // Show notification with different types
-  static show(
-    message: string, 
-    type: NotificationType = NOTIFICATION_TYPES.SUCCESS
-  ): void {
+  static show(message: string, type: NotificationType = NOTIFICATION_TYPES.SUCCESS): void {
     // Remove existing notification
     const existing = document.querySelector(`.${EXTENSION_CLASSES.NOTIFICATION}`);
     if (existing) {
@@ -24,14 +17,14 @@ export class NotificationManager {
       [NOTIFICATION_TYPES.SUCCESS]: '#4caf50',
       [NOTIFICATION_TYPES.ERROR]: '#f44336',
       [NOTIFICATION_TYPES.WARNING]: '#ff9800',
-      [NOTIFICATION_TYPES.LOADING]: '#2196f3'
+      [NOTIFICATION_TYPES.LOADING]: '#2196f3',
     };
 
     const icons = {
       [NOTIFICATION_TYPES.SUCCESS]: '✓',
       [NOTIFICATION_TYPES.ERROR]: '✗',
       [NOTIFICATION_TYPES.WARNING]: '⚠',
-      [NOTIFICATION_TYPES.LOADING]: '⟳'
+      [NOTIFICATION_TYPES.LOADING]: '⟳',
     };
 
     notification.style.cssText = `

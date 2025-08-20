@@ -147,6 +147,21 @@ pnpm type-check
 pnpm clean
 ```
 
+**Extension Development & Testing:**
+
+```bash
+# Load extension for testing:
+# 1. Build extension: pnpm build:dev
+# 2. Open Chrome -> chrome://extensions/
+# 3. Enable "Developer mode"
+# 4. Click "Load unpacked" -> select dist/ folder
+
+# Debug extension:
+# - Background script: chrome://extensions/ -> "Service Worker" link
+# - Content script: Browser DevTools -> Console tab
+# - Popup: Right-click extension icon -> "Inspect popup"
+```
+
 ## Backend Architecture Patterns
 
 ### Clean Architecture Implementation

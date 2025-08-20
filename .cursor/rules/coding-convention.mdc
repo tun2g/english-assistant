@@ -10,13 +10,11 @@ alwaysApply: true
 
 - **ALWAYS** use `pnpm` as package manager, read the package.json before running any related script
 - **ALWAYS** use TypeScript - never plain JavaScript
-- **ALWAYS** use named exports (avoid default exports except for Next.js pages)
 - **ALWAYS** use `function` syntax for main component/hook exports
 - **NEVER** modify files in `src/components/ui/` (shadcn ui components) without approval
 - **NEVER** expose service role keys and other private/sensitive keys to client-side code
 - **RULE**: **NEVER set system environment variables** for values managed in `.env` files
 - **RULE**: IMPORTANT **MUST** Using [dayjs-lib.ts](mdc:src/lib/dayjs-lib.ts) (already customized) for datetime handling (not use primitive `dayjs` or any library or default Date() function)
-- **RULE**: Prefer server side first when working with Next.js
 - **RULE**: Don't need to rerun the application for each change, we already have hot reload
 
 ## 2. File Rules
@@ -38,7 +36,6 @@ alwaysApply: true
 - **RULE**: **NOT** prefer using index file e.g. `index.ts`, `index.tsx`
 
 ### Directory Placement
-- **RULE**: Only place Next.js specific files in `src/app/` folder
 - **RULE**: Component placement:
   - **Shared components**: Place in `src/components/`
   - **Split/child components**: Place in parent folder under `components/`
@@ -116,7 +113,7 @@ import type { User } from './types';
 import { someFunction, type SomeType } from './module';
 ```
 
-## 4. React & Next.js Rules
+## 4. React Rules
 
 ### React Patterns
 - **RULE**: Use direct imports for React hooks
@@ -140,18 +137,14 @@ import * as React from 'react';
 - **RULE**: Be granular - extract only interactive parts to Client Components
 
 ### Images
-- **RULE**: **ALWAYS use `next/image`** - never `<img>` tag
 - **RULE**: Required props: `src`, `alt`, and either (`width` + `height`) OR `fill`
 - **RULE**: When using `fill`, parent element **MUST** have `position: relative`
 - **RULE**: Use `priority={true}` for above-the-fold images
-- **RULE**: Configure `remotePatterns` in `next.config.mjs` for external images
 
 ### Link
-- **RULE**: **ALWAYS** use `next/link` for link component - never `<a>` tag
 
 ### API Routes
 - **RULE**: Use API routes for webhooks, external endpoints, or internal data operations
-- **RULE**: Follow Next.js App Router conventions for API routes in `app/api/` directory
 
 ## 5. TanStack Query Rules
 

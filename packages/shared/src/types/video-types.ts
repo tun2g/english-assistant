@@ -26,7 +26,7 @@ export interface Language {
 
 export interface TranscriptSegment {
   startTime: number; // in milliseconds
-  endTime: number;   // in milliseconds
+  endTime: number; // in milliseconds
   text: string;
   index: number;
 }
@@ -38,22 +38,6 @@ export interface TranscriptResponse {
   segments: TranscriptSegment[];
   available: boolean;
   source: 'manual' | 'auto-generated' | 'forced';
-}
-
-export interface TranslatedSegment {
-  index: number;
-  originalText: string;
-  translatedText: string;
-}
-
-export interface TranslationResponse {
-  videoId: string;
-  provider: VideoProvider;
-  sourceLang: string;
-  targetLang: string;
-  segments: TranscriptSegment[];
-  translations: TranslatedSegment[];
-  cached: boolean;
 }
 
 export interface VideoError {
@@ -72,13 +56,6 @@ export interface GetTranscriptRequest {
   language?: string;
 }
 
-export interface TranslateTranscriptRequest {
-  videoUrl: string;
-  targetLang: string;
-  sourceLang?: string;
-  cacheResult?: boolean;
-}
-
 export interface GetAvailableLanguagesRequest {
   videoUrl: string;
 }
@@ -91,8 +68,6 @@ export interface GetCapabilitiesRequest {
 export interface GetVideoInfoResponse extends VideoInfo {}
 
 export interface GetTranscriptResponseData extends TranscriptResponse {}
-
-export interface TranslateTranscriptResponseData extends TranslationResponse {}
 
 export interface GetAvailableLanguagesResponse {
   videoId: string;
@@ -122,4 +97,14 @@ export interface VideoApiError extends Error {
   code?: string;
   details?: string;
   status?: number;
+}
+
+// Additional types for hooks
+export type VideoTranscript = TranscriptResponse;
+
+export interface VideoProgressRequest {
+  videoId: string;
+  currentTime: number;
+  duration: number;
+  completed?: boolean;
 }

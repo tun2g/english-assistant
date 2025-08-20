@@ -1,7 +1,7 @@
 import { oauthService } from '../../../services/oauth-service';
-import { NotificationManager } from '../notifications/notification-manager';
-import { OAUTH_CONFIG } from '../../../shared/constants/extension-constants';
+import { OAUTH_CONFIG } from '../../../shared/constants';
 import type { OAuthAuthenticationResult } from '../../../shared/types/extension-types';
+import { NotificationManager } from '../notifications/notification-manager';
 
 export class OAuthManager {
   private isAuthenticated: boolean = false;
@@ -16,7 +16,7 @@ export class OAuthManager {
     try {
       const result = await oauthService.checkAuthStatus();
       this.isAuthenticated = result.authenticated;
-      
+
       if (result.authenticated) {
         console.log('OAuthManager: OAuth authentication active');
       } else {
@@ -42,9 +42,9 @@ export class OAuthManager {
     } catch (error) {
       console.error('Failed to check OAuth status:', error);
       this.isAuthenticated = false;
-      return { 
-        authenticated: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+      return {
+        authenticated: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -54,7 +54,7 @@ export class OAuthManager {
     try {
       NotificationManager.showLoading('Opening YouTube authentication...');
       await oauthService.initiateOAuth();
-      
+
       // Start polling for authentication completion
       this.startAuthenticationPolling();
     } catch (error) {
@@ -90,13 +90,13 @@ export class OAuthManager {
     }
 
     let pollCount = 0;
-    
+
     this.pollingInterval = setInterval(async () => {
       pollCount++;
-      
+
       try {
         const result = await this.checkAuthStatus();
-        
+
         if (result.authenticated) {
           // Authentication successful!
           this.stopPolling();
@@ -131,11 +131,13 @@ export class OAuthManager {
   // Check if error is authentication-related
   isAuthenticationError(error: any): boolean {
     const errorMessage = error.message || error.details || '';
-    return errorMessage.toLowerCase().includes('authenticate') ||
-           errorMessage.toLowerCase().includes('unauthorized') ||
-           errorMessage.toLowerCase().includes('auth') ||
-           error.status === 401 ||
-           error.status === 403;
+    return (
+      errorMessage.toLowerCase().includes('authenticate') ||
+      errorMessage.toLowerCase().includes('unauthorized') ||
+      errorMessage.toLowerCase().includes('auth') ||
+      error.status === 401 ||
+      error.status === 403
+    );
   }
 
   // Clean up resources

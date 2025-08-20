@@ -3,6 +3,7 @@ package routes
 import (
 	"app-backend/internal/handlers/auth"
 	"app-backend/internal/handlers/oauth"
+	"app-backend/internal/handlers/translation"
 	"app-backend/internal/handlers/user"
 	"app-backend/internal/handlers/video"
 	"app-backend/internal/middleware"
@@ -12,11 +13,12 @@ import (
 
 // RouteConfig holds all the dependencies needed for route setup
 type RouteConfig struct {
-	AuthHandler    auth.HandlerInterface
-	UserHandler    user.HandlerInterface
-	VideoHandler   video.HandlerInterface
-	OAuthHandler   oauth.HandlerInterface
-	AuthMiddleware *middleware.AuthMiddleware
+	AuthHandler        auth.HandlerInterface
+	UserHandler        user.HandlerInterface
+	VideoHandler       video.HandlerInterface
+	OAuthHandler       oauth.HandlerInterface
+	TranslationHandler translation.HandlerInterface
+	AuthMiddleware     *middleware.AuthMiddleware
 }
 
 // SetupRoutes configures all application routes
@@ -36,6 +38,7 @@ func SetupRoutes(router *gin.Engine, config *RouteConfig) {
 		SetupAuthRoutes(v1, config.AuthHandler, config.AuthMiddleware)
 		SetupUserRoutes(v1, config.UserHandler, config.AuthMiddleware)
 		SetupVideoRoutes(v1, config.VideoHandler, config.AuthMiddleware)
+		SetupTranslationRoutes(v1, config.TranslationHandler)
 		SetupOAuthRoutes(v1, config.OAuthHandler)
 	}
 

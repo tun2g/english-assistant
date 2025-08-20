@@ -1,4 +1,4 @@
-import { EXTENSION_CLASSES } from '../../../shared/constants/extension-constants';
+import { EXTENSION_CLASSES } from '../../../shared/constants';
 import { removeElementIfExists } from '../../utils/dom/dom-utils';
 import type { VideoTranscript } from '../../../shared/types/extension-types';
 
@@ -96,10 +96,8 @@ export class TranscriptModal {
 
     // Display transcript segments
     if (transcript.segments && transcript.segments.length > 0) {
-      const transcriptText = transcript.segments
-        .map((segment) => segment.text)
-        .join(' ');
-      
+      const transcriptText = transcript.segments.map(segment => segment.text).join(' ');
+
       content.innerHTML = `
         <p style="margin: 0 0 10px 0; color: #666; font-size: 12px;">
           Language: ${transcript.language || 'Unknown'} | 
@@ -118,11 +116,11 @@ export class TranscriptModal {
   // Setup event listeners for modal
   private static setupEventListeners(modal: HTMLElement): void {
     const closeBtn = modal.querySelector('.modal-close-btn') as HTMLButtonElement;
-    
+
     closeBtn.addEventListener('click', () => modal.remove());
 
     // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
+    modal.addEventListener('click', e => {
       if (e.target === modal) {
         modal.remove();
       }
