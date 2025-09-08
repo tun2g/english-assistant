@@ -51,21 +51,17 @@ export class PlayerControlsManager {
       }
 
       this.injectionAttempts++;
-      console.log(`PlayerControlsManager: Injection attempt ${this.injectionAttempts}/${this.maxAttempts}`);
 
       const rightControls = findYouTubeRightControls(true); // Silent mode to prevent spam
 
       if (rightControls) {
         const existingButton = rightControls.querySelector(`.${EXTENSION_CLASSES.EXTENSION_BTN}`);
         if (!existingButton) {
-          console.log('PlayerControlsManager: Found controls, injecting extension button');
           this.addExtensionIconToControls(rightControls);
         } else {
-          console.log('PlayerControlsManager: Extension button already exists');
           this.isInjected = true;
         }
       } else {
-        console.log(`PlayerControlsManager: Controls not found, retrying in ${1000 * this.injectionAttempts}ms`);
         const delay = Math.min(1000 * this.injectionAttempts, 5000); // Progressive delay, max 5s
         setTimeout(attemptInject, delay);
       }
@@ -108,7 +104,6 @@ export class PlayerControlsManager {
       }
 
       if (hasSignificantChange) {
-        console.log('PlayerControlsManager: Detected significant control changes via MutationObserver');
         const rightControls = findYouTubeRightControls(true);
         if (rightControls && !rightControls.querySelector(`.${EXTENSION_CLASSES.EXTENSION_BTN}`)) {
           this.addExtensionIconToControls(rightControls);
@@ -171,33 +166,93 @@ export class PlayerControlsManager {
     extensionBtn.addEventListener('click', async e => {
       e.preventDefault();
       e.stopPropagation();
-      console.log('PlayerControlsManager: Extension button clicked!');
       await this.callbacks.onButtonClick();
     });
 
-    // Insert before settings button or append to end
-    const settingsButton = controlsContainer.querySelector(YOUTUBE_SELECTORS.SETTINGS_BUTTON);
-    if (settingsButton) {
-      console.log('PlayerControlsManager: Inserting extension button before settings button');
-      controlsContainer.insertBefore(extensionBtn, settingsButton);
-    } else {
-      console.log('PlayerControlsManager: Settings button not found, appending to end');
-      controlsContainer.appendChild(extensionBtn);
+    // Try to find a reference button for insertion
+    let insertionSuccess = false;
+
+    // First, try to insert in the right controls left section (before settings)
+    const rightControlsLeft = controlsContainer.querySelector(YOUTUBE_SELECTORS.RIGHT_CONTROLS_LEFT);
+    if (rightControlsLeft) {
+      // Try settings button first in the left section
+      for (const selector of YOUTUBE_SELECTORS.SETTINGS_BUTTON) {
+        const settingsButton = rightControlsLeft.querySelector(selector);
+        if (settingsButton) {
+          try {
+            rightControlsLeft.insertBefore(extensionBtn, settingsButton);
+            insertionSuccess = true;
+            break;
+          } catch (error) {
+            console.warn(`Failed to insert before settings button in left section with selector ${selector}:`, error);
+          }
+        }
+      }
+
+      // If no settings button in left section, append to end of left section
+      if (!insertionSuccess) {
+        try {
+          rightControlsLeft.appendChild(extensionBtn);
+          insertionSuccess = true;
+        } catch (error) {
+          console.warn('Failed to append to right controls left section:', error);
+        }
+      }
+    }
+
+    // If left section insertion failed, try settings button in main container
+    if (!insertionSuccess) {
+      for (const selector of YOUTUBE_SELECTORS.SETTINGS_BUTTON) {
+        const settingsButton = controlsContainer.querySelector(selector);
+        if (settingsButton && settingsButton.parentNode === controlsContainer) {
+          try {
+            controlsContainer.insertBefore(extensionBtn, settingsButton);
+            insertionSuccess = true;
+            break;
+          } catch (error) {
+            console.warn(`Failed to insert before settings button with selector ${selector}:`, error);
+          }
+        }
+      }
+    }
+
+    // If settings button insertion failed, try fullscreen button
+    if (!insertionSuccess) {
+      for (const selector of YOUTUBE_SELECTORS.FULLSCREEN_BUTTON) {
+        const fullscreenButton = controlsContainer.querySelector(selector);
+        if (fullscreenButton && fullscreenButton.parentNode === controlsContainer) {
+          try {
+            controlsContainer.insertBefore(extensionBtn, fullscreenButton);
+            insertionSuccess = true;
+            break;
+          } catch (error) {
+            console.warn(`Failed to insert before fullscreen button with selector ${selector}:`, error);
+          }
+        }
+      }
+    }
+
+    // Fallback: append to end
+    if (!insertionSuccess) {
+      try {
+        controlsContainer.appendChild(extensionBtn);
+        insertionSuccess = true;
+      } catch (error) {
+        console.error('Failed to append extension button:', error);
+        return;
+      }
     }
 
     // Verify injection was successful
     const verifyButton = controlsContainer.querySelector(`.${EXTENSION_CLASSES.EXTENSION_BTN}`);
-    if (verifyButton) {
+    if (verifyButton && insertionSuccess) {
       this.isInjected = true;
-      console.log('PlayerControlsManager: Extension button injected successfully!');
 
       // Disconnect observer since we succeeded
       if (this.playerObserver) {
         this.playerObserver.disconnect();
         this.playerObserver = null;
       }
-    } else {
-      console.error('PlayerControlsManager: Button injection failed - button not found after insertion');
     }
   }
 }
