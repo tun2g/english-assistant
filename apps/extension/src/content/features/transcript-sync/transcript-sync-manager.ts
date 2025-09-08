@@ -21,12 +21,6 @@ export class TranscriptSyncManager {
   setTranscript(transcript: VideoTranscript | null): void {
     this.transcript = transcript;
     this.currentSegmentIndex = -1;
-
-    if (transcript) {
-      console.log('TranscriptSyncManager: Transcript set with', transcript.segments.length, 'segments');
-    } else {
-      console.log('TranscriptSyncManager: Transcript cleared');
-    }
   }
 
   // Start synchronization
@@ -34,7 +28,6 @@ export class TranscriptSyncManager {
     if (this.isActive) return;
 
     this.isActive = true;
-    console.log('TranscriptSyncManager: Started synchronization');
   }
 
   // Stop synchronization
@@ -44,17 +37,11 @@ export class TranscriptSyncManager {
     this.isActive = false;
     this.currentSegmentIndex = -1;
     this.callbacks.onActiveSegmentChange(null, -1);
-    console.log('TranscriptSyncManager: Stopped synchronization');
   }
 
   // Update with current video time
   updateVideoTime(playerInfo: VideoPlayerInfo): void {
     if (!this.isActive || !this.transcript || !this.transcript.segments.length) {
-      console.log('TranscriptSyncManager: Not updating - inactive or no transcript', {
-        isActive: this.isActive,
-        hasTranscript: !!this.transcript,
-        segmentCount: this.transcript?.segments.length || 0,
-      });
       return;
     }
 
@@ -63,29 +50,6 @@ export class TranscriptSyncManager {
 
     // Force segment change detection on seek to resync immediately
     const forceUpdate = playerInfo.isSeek || false;
-
-    // Debug: Log segment search result
-    if (newSegmentIndex !== this.currentSegmentIndex || forceUpdate) {
-      console.log('TranscriptSyncManager: Segment change detected', {
-        currentTime: currentTime.toFixed(2),
-        oldSegmentIndex: this.currentSegmentIndex,
-        newSegmentIndex,
-        totalSegments: this.transcript.segments.length,
-      });
-
-      if (newSegmentIndex >= 0) {
-        const segment = this.transcript.segments[newSegmentIndex];
-        console.log('TranscriptSyncManager: New active segment', {
-          index: newSegmentIndex,
-          text: segment.text.substring(0, 50) + '...',
-          start: segment.start,
-          end: segment.end,
-          currentTime: currentTime.toFixed(2),
-        });
-      } else {
-        console.log('TranscriptSyncManager: No active segment found for time', currentTime.toFixed(2));
-      }
-    }
 
     // Check if we've moved to a different segment or force update due to seek
     if (newSegmentIndex !== this.currentSegmentIndex || forceUpdate) {
@@ -115,20 +79,6 @@ export class TranscriptSyncManager {
 
     // Add offset to highlight segment slightly before it speaks
     const timeWithOffset = currentTime + TRANSCRIPT_CONFIG.SEGMENT_HIGHLIGHT_OFFSET / 1000;
-
-    // Debug: Log first few segments and timing info
-    if (Math.floor(currentTime) % 10 === 0) {
-      console.log('TranscriptSyncManager: Segment timing debug', {
-        currentTime: currentTime.toFixed(2),
-        timeWithOffset: timeWithOffset.toFixed(2),
-        offset: TRANSCRIPT_CONFIG.SEGMENT_HIGHLIGHT_OFFSET,
-        firstSegments: this.transcript.segments.slice(0, 3).map(s => ({
-          start: s.start,
-          end: s.end,
-          text: s.text.substring(0, 30),
-        })),
-      });
-    }
 
     // If using estimated timing (when all segments have start/end times), use proportional matching
     const hasRealTiming = this.transcript.segments.some(s => s.start > 0 && s.end > s.start + 0.5);

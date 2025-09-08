@@ -3,6 +3,7 @@ node_modules/
 .pnp
 .pnp.js
 tsconfig.tsbuildinfo
+vite.config.ts.timestamp*
 
 # Testing
 coverage/
@@ -40,7 +41,6 @@ pids
 .turbo/
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -64,6 +64,3 @@ go.work.sum
 # Temporary files
 tmp/
 temp/
-
-# Husky
-.husky/_

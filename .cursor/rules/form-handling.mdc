@@ -10,7 +10,6 @@ Generate forms by correctly using the components from [form.tsx](mdc:src/compone
 ## Mandatory Form Structure
 
 ```tsx
-"use client"; // Add in Next.js App Router client component
 
 // Essential imports:
 import { z } from 'zod';
@@ -70,14 +69,13 @@ function MyFormComponent() {
 
 1.  **Schema First**: Define or request a Zod schema. Infer types (`z.infer`).
 2.  **`useForm` Correctly**: Initialize with `zodResolver` and `defaultValues` for ALL fields.
-3.  **`"use client";`**: Add for Next.js App Router client components if form is interactive.
-4.  **Strict JSX Hierarchy**: Follow the `Form` -> `form` -> `FormField` -> `FormItem` -> `FormLabel`/`FormControl`/`FormDescription`/`FormMessage` structure from `@/components/ui/form.tsx` for every field.
-5.  **`<FormField>` Props**: Correctly pass `control={form.control}` and `name="yourFieldName"` (string literal matching schema).
-6.  **`<FormField>` Render Prop**: Use `render={({ field }) => ...}`.
-7.  **`<FormControl>` Direct Child**: The actual UI input component (e.g., `<Input>`, `<Textarea>`) MUST be the direct child of `<FormControl>`.
-8.  **Spread `{...field}` if possible** : Prefer spread the `field` object from the render prop onto the UI input component: `<Input {...field} />`. If the input component fields not match default field, we MUST NOT spread and MUST give explicitly mapping such as `<CustomSelect onSelectChange={field.onChange} customValue={field.value} />.
-9.  **Use `<FormMessage />`**: This component from `@/components/ui/form.tsx` automatically displays validation errors. Do not implement custom error display for fields.
-10. **Imports**: Ensure all components are imported from `@/components/ui/form`, RHF, Zod, and your UI library (e.g., `@/components/ui/input`).
+3.  **Strict JSX Hierarchy**: Follow the `Form` -> `form` -> `FormField` -> `FormItem` -> `FormLabel`/`FormControl`/`FormDescription`/`FormMessage` structure from `@/components/ui/form.tsx` for every field.
+4.  **`<FormField>` Props**: Correctly pass `control={form.control}` and `name="yourFieldName"` (string literal matching schema).
+5.  **`<FormField>` Render Prop**: Use `render={({ field }) => ...}`.
+6.  **`<FormControl>` Direct Child**: The actual UI input component (e.g., `<Input>`, `<Textarea>`) MUST be the direct child of `<FormControl>`.
+7.  **Spread `{...field}` if possible** : Prefer spread the `field` object from the render prop onto the UI input component: `<Input {...field} />`. If the input component fields not match default field, we MUST NOT spread and MUST give explicitly mapping such as `<CustomSelect onSelectChange={field.onChange} customValue={field.value} />.
+8.  **Use `<FormMessage />`**: This component from `@/components/ui/form.tsx` automatically displays validation errors. Do not implement custom error display for fields.
+9. **Imports**: Ensure all components are imported from `@/components/ui/form`, RHF, Zod, and your UI library (e.g., `@/components/ui/input`).
 
 **DO NOT:**
 

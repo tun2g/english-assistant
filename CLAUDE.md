@@ -17,6 +17,8 @@ English Learning Assistant is a comprehensive monorepo containing:
 
 ## Development Commands
 
+**Package Manager**: Always use `pnpm` - check `package.json` before running any scripts.
+
 ### Monorepo Management (pnpm + Turbo)
 
 ```bash
@@ -293,6 +295,15 @@ type Container struct {
 - **Component files** rely on folder context: `{descriptive-name}.tsx`
   - `certifications-table.tsx`, `login-form.tsx`
 
+**Directory Organization:**
+
+- **Shared components**: Place in `src/components/`
+- **Child/split components**: Place in parent folder under `components/`
+- **Type definitions**: Prefer LOCAL scope over global
+  - Feature-specific: `{feature}/interfaces/` or `{feature}/constants/`
+  - Component-specific: Define directly in component files
+  - Global types: `src/lib/types/` ONLY for app-wide shared types
+
 ### TypeScript Rules
 
 **ALWAYS prefer `interface` over `type` for object shapes:**
@@ -304,21 +315,38 @@ interface UserProfileProps {
   onUpdate: (data: Partial<User>) => void;
 }
 
-// ✅ Use type for specific cases only
+// ✅ Use type ONLY for: unions, primitives, Zod inference, mapped types
 type Status = 'loading' | 'success' | 'error';
 type ApiResponse<T> = { status: 'success'; data: T } | { status: 'error'; message: string };
+type CreateUserRequest = z.infer<typeof createUserSchema>;
 ```
 
 **NEVER use `enum` - use `as const` instead:**
 
 ```typescript
-// ✅ Use as const
+// ✅ Use as const with SCREAMING_SNAKE_CASE constants
 const USER_ROLES = {
   ADMIN: 'admin',
   USER: 'user',
   SYSTEM_ADMIN: 'system_admin',
 } as const;
 type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+```
+
+**Code Style Requirements:**
+
+```typescript
+// ✅ ALWAYS use curly braces for block statements (if, else, while, for)
+if (condition) {
+  doSomething();
+}
+for (let i = 0; i < arr.length; i++) {
+  process(arr[i]);
+}
+
+// ✅ Arrow functions can skip braces for simple expressions
+const fn = () => value;
+array.map(item => item.name);
 ```
 
 ### React Patterns
@@ -343,8 +371,10 @@ import { someFunction, type SomeType } from './module';
 **Component Export Patterns:**
 
 - **ALWAYS use named exports** (avoid default exports)
-- Use `function` syntax for main component exports
-- Use arrow functions for inline handlers and small utilities
+- Use `function` syntax for main component exports, complex handlers, reused functions
+- Use arrow functions for inline handlers, array methods, callbacks, small utilities
+- Custom hooks must start with `use` and return objects (not arrays)
+- Event handlers start with `handle`, callback props start with `on`
 
 ### Styling Guidelines
 
@@ -360,15 +390,22 @@ import { someFunction, type SomeType } from './module';
 }
 ```
 
-**MUST use `cn` function for class concatenation:**
+**MUST use `cn` function from `tailwind-utils.ts` for class concatenation:**
 
 ```typescript
 // ✅ Correct usage
 <div className={cn('base-class', isActive && 'active-class')} />
 
-// ❌ Avoid concatenation
+// ❌ Avoid string concatenation
 <div className={`base-class ${isActive ? 'active-class' : ''}`} />
 ```
+
+**UI Styling Guidelines:**
+
+- Use flat and clean UI design patterns
+- Prefer responsive breakpoint prefixes (`md:`, `lg:`, etc.)
+- Reference existing components before creating new patterns
+- Never modify `src/components/ui/` (shadcn/ui) components without approval
 
 ## Development Patterns
 
@@ -399,12 +436,71 @@ const mutation = useMutation({
 **Generic error messages on client-side:**
 
 ```typescript
-// ✅ Generic error messages
+// ✅ Generic error messages for security
 onError: () => toast.error('Failed to create job posting. Please try again.');
 
-// ❌ Never expose server error details
-onError: error => toast.error(error.message);
+// ❌ Never expose server error details to client
+onError: error => toast.error(error.message); // Could leak sensitive info
 ```
+
+**Error Handling Rules:**
+
+- Log detailed errors server-side for debugging
+- Show generic messages client-side for security
+- Always handle loading and error states in Client Components
+
+### Form Handling with React Hook Form
+
+**MANDATORY form structure using shadcn/ui components:**
+
+```typescript
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+// 1. Zod schema first
+const formSchema = z.object({
+  fieldName: z.string().min(1, "This field is required."),
+});
+type FormValues = z.infer<typeof formSchema>;
+
+// 2. Component with strict structure
+function MyForm() {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { fieldName: "" }, // Initialize ALL fields
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="fieldName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Field Label</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Enter value" />
+              </FormControl>
+              <FormMessage /> {/* Auto-displays validation errors */}
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
+  );
+}
+```
+
+**Form Rules:**
+
+- Never modify files in `src/components/ui/` (shadcn/ui components)
+- Use `<FormMessage />` for automatic error display (no custom error handling)
+- Spread `{...field}` when input component properties match field properties
+- Follow strict JSX hierarchy: `Form` → `form` → `FormField` → `FormItem` → `FormControl`
 
 ### Type Safety Between Backend and Frontend
 

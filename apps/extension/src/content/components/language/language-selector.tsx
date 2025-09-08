@@ -15,16 +15,16 @@ import {
   Switch,
 } from '@english/ui';
 import { useState } from 'react';
-import type { LanguageSettings } from '../../../shared/types/extension-types';
+import type { LanguageSettingParams } from '../../../shared/types/extension-types';
 
 interface LanguageSelectorProps {
-  initialSettings: LanguageSettings;
-  onSave: (settings: LanguageSettings) => void;
+  initialSettings: LanguageSettingParams;
+  onSave: (settings: LanguageSettingParams) => void;
   onClose: () => void;
 }
 
 export function LanguageSelector({ initialSettings, onSave, onClose }: LanguageSelectorProps) {
-  const [settings, setSettings] = useState<LanguageSettings>(initialSettings);
+  const [settings, setSettings] = useState<LanguageSettingParams>(initialSettings);
 
   const handleSave = () => {
     onSave(settings);

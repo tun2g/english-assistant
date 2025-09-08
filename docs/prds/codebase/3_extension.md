@@ -28,8 +28,6 @@ The English Learning Assistant Chrome Extension is built using:
   "dependencies": {
     "@english/shared": "workspace:*",
     "@english/ui": "workspace:*",
-    "framework7": "^8.3.4",
-    "framework7-react": "^8.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
