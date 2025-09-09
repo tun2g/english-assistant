@@ -22,7 +22,7 @@ module.exports = {
     // General JavaScript/TypeScript rules
     'prefer-const': 'error',
     'no-var': 'error',
-    'no-console': 'warn',
+    'no-console': 'off',
     'no-debugger': 'error',
     'no-alert': 'error',
 

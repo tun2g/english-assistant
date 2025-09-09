@@ -10,16 +10,16 @@ module.exports = {
   rules: {
     // Chrome Extension specific rules
     'no-console': 'warn', // Console logs are useful for debugging extensions
-    
+
     // Security rules for extensions
     'no-eval': 'error',
     'no-implied-eval': 'error',
     'no-new-func': 'error',
     'no-script-url': 'error',
-    
+
     // Chrome API usage rules
     '@typescript-eslint/no-explicit-any': 'warn', // Chrome APIs sometimes use any
-    
+
     // Content Security Policy compliance
     'no-inline-comments': 'off',
     'no-undef': 'error',

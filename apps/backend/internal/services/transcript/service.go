@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -100,51 +101,133 @@ func (s *Service) GetTranscript(ctx context.Context, req *types.TranscriptReques
 		return nil, errors.ErrProviderNotAvailable
 	}
 
-	var lastErr error
-	var providerErrors []string
-	
-	for _, provider := range providers {
-		s.logger.Info("Attempting to get transcript", 
-			zap.String("provider", string(provider.GetProviderType())),
-			zap.String("video_id", req.VideoID),
-			zap.String("video_url", req.VideoURL),
-			zap.String("language", req.Language))
+	// Use parallel approach for better performance
+	return s.getTranscriptParallel(ctx, req, providers)
+}
 
-		// Check if provider is available
-		if !provider.IsAvailable(ctx) {
-			errMsg := fmt.Sprintf("Provider %s not available", provider.GetProviderType())
-			providerErrors = append(providerErrors, errMsg)
+// getTranscriptParallel attempts to get transcript from multiple providers concurrently
+// Returns the first successful result, respecting provider priority order
+func (s *Service) getTranscriptParallel(ctx context.Context, req *types.TranscriptRequest, providers []ProviderInterface) (*types.Transcript, error) {
+	type providerResult struct {
+		transcript *types.Transcript
+		provider   string
+		priority   int
+		err        error
+	}
+
+	// Create context with timeout to prevent hanging on slow providers
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, 45*time.Second)
+	defer cancel()
+
+	resultChan := make(chan providerResult, len(providers))
+	var wg sync.WaitGroup
+	activeProviders := 0
+
+	// Launch goroutines for all available providers
+	for i, provider := range providers {
+		// Check if provider is available before launching goroutine
+		if !provider.IsAvailable(ctxWithTimeout) {
 			s.logger.Warn("Provider not available", 
 				zap.String("provider", string(provider.GetProviderType())))
 			continue
 		}
 
-		transcript, err := provider.GetTranscript(ctx, req)
-		if err != nil {
-			errMsg := fmt.Sprintf("Provider %s failed: %v", provider.GetProviderType(), err)
+		activeProviders++
+		wg.Add(1)
+		go func(p ProviderInterface, priority int) {
+			defer wg.Done()
+			
+			s.logger.Info("Attempting to get transcript", 
+				zap.String("provider", string(p.GetProviderType())),
+				zap.String("video_id", req.VideoID),
+				zap.String("video_url", req.VideoURL),
+				zap.String("language", req.Language))
+
+			transcript, err := p.GetTranscript(ctxWithTimeout, req)
+			
+			result := providerResult{
+				transcript: transcript,
+				provider:   string(p.GetProviderType()),
+				priority:   priority,
+				err:        err,
+			}
+
+			select {
+			case resultChan <- result:
+			case <-ctxWithTimeout.Done():
+				s.logger.Debug("Context cancelled during result send", 
+					zap.String("provider", string(p.GetProviderType())))
+				return
+			}
+		}(provider, i)
+	}
+
+	if activeProviders == 0 {
+		return nil, errors.ErrProviderNotAvailable
+	}
+
+	// Close result channel when all goroutines complete
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	// Collect results and find the best one (lowest priority number = highest priority)
+	var bestResult *providerResult
+	var providerErrors []string
+	var lastErr error
+	completedProviders := 0
+
+	for result := range resultChan {
+		completedProviders++
+		
+		if result.err != nil {
+			errMsg := fmt.Sprintf("Provider %s failed: %v", result.provider, result.err)
 			providerErrors = append(providerErrors, errMsg)
 			s.logger.Error("Provider failed to get transcript", 
-				zap.String("provider", string(provider.GetProviderType())),
+				zap.String("provider", result.provider),
 				zap.String("video_id", req.VideoID),
-				zap.Error(err))
-			lastErr = err
+				zap.Error(result.err))
+			lastErr = result.err
 			continue
 		}
 
-		s.logger.Info("Successfully retrieved transcript", 
-			zap.String("provider", string(provider.GetProviderType())),
-			zap.String("video_id", transcript.VideoID),
-			zap.Int("segment_count", len(transcript.Segments)),
-			zap.String("language", transcript.Language))
+		// Success - check if this is better than our current best result
+		if result.transcript != nil && (bestResult == nil || result.priority < bestResult.priority) {
+			bestResult = &result
+			
+			// If this is the highest priority provider (priority 0), return immediately
+			// This provides early termination optimization
+			if result.priority == 0 {
+				s.logger.Info("Successfully retrieved transcript from highest priority provider", 
+					zap.String("provider", result.provider),
+					zap.String("video_id", result.transcript.VideoID),
+					zap.Int("segment_count", len(result.transcript.Segments)),
+					zap.String("language", result.transcript.Language))
+				cancel() // Cancel remaining providers
+				return result.transcript, nil
+			}
+		}
+	}
 
-		return transcript, nil
+	// Return the best result we found
+	if bestResult != nil {
+		s.logger.Info("Successfully retrieved transcript", 
+			zap.String("provider", bestResult.provider),
+			zap.String("video_id", bestResult.transcript.VideoID),
+			zap.Int("segment_count", len(bestResult.transcript.Segments)),
+			zap.String("language", bestResult.transcript.Language),
+			zap.Int("completed_providers", completedProviders),
+			zap.Int("total_providers", activeProviders))
+		return bestResult.transcript, nil
 	}
 
 	// Log summary of all failures
 	s.logger.Error("All transcript providers failed", 
 		zap.String("video_id", req.VideoID),
 		zap.Strings("provider_errors", providerErrors),
-		zap.Int("total_providers", len(providers)))
+		zap.Int("completed_providers", completedProviders),
+		zap.Int("total_providers", activeProviders))
 
 	if lastErr != nil {
 		return nil, lastErr

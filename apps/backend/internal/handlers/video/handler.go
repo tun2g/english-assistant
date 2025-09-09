@@ -3,6 +3,7 @@ package video
 import (
 	"net/http"
 	"net/url"
+	"sync"
 
 	"app-backend/internal/dto"
 	"app-backend/internal/logger"
@@ -64,24 +65,44 @@ func (h *Handler) GetVideoInfo(c *gin.Context) {
 		return
 	}
 
-	// Get video info
-	videoInfo, err := h.videoService.GetVideoInfo(c.Request.Context(), provider, videoID)
-	if err != nil {
+	// Fetch video info and capabilities concurrently for better performance
+	var videoInfo *internalTypes.VideoInfo
+	var capabilities *internalTypes.VideoCapabilities
+	var videoErr, capErr error
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+
+	// Fetch video info in parallel
+	go func() {
+		defer wg.Done()
+		videoInfo, videoErr = h.videoService.GetVideoInfo(c.Request.Context(), provider, videoID)
+	}()
+
+	// Fetch capabilities in parallel
+	go func() {
+		defer wg.Done()
+		capabilities, capErr = h.videoService.GetCapabilities(c.Request.Context(), provider, videoID)
+	}()
+
+	wg.Wait()
+
+	// Check for critical video info error
+	if videoErr != nil {
 		h.logger.Error("Failed to get video info", 
 			zap.String("provider", string(provider)),
 			zap.String("videoID", videoID),
-			zap.Error(err))
+			zap.Error(videoErr))
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to retrieve video information",
-			Details: err.Error(),
+			Details: videoErr.Error(),
 		})
 		return
 	}
 
-	// Get capabilities
-	capabilities, err := h.videoService.GetCapabilities(c.Request.Context(), provider, videoID)
-	if err != nil {
-		h.logger.Warn("Failed to get capabilities", zap.Error(err))
+	// Capabilities error is non-fatal (existing behavior)
+	if capErr != nil {
+		h.logger.Warn("Failed to get capabilities", zap.Error(capErr))
 		capabilities = nil
 	}
 
